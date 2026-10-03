@@ -1,0 +1,20 @@
+{
+	"name": "stocksync",
+	"private": true,
+	"scripts": {
+		"dev": "turbo run dev",
+		"build": "turbo run build",
+		"test": "turbo run test",
+		"lint:check": "biome check .",
+		"lint:fix": "biome check --write .",
+		"lint:format": "biome format --write ."
+	},
+	"packageManager": "pnpm@10.33.2",
+	"engines": {
+		"node": ">=24 <25"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.15",
+		"turbo": "^2.11.7"
+	}
+}
