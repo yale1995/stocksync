@@ -32,6 +32,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M3 apps/backend/src/app.ts:11 (http)
 - last seen: 2026-10-04T02:57:57Z
 
+### L-004 - Test each query's soft-delete filter through its own route, not only through a predicate shared with another route
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repo-layer` · harmful: 0
+- features: auth-tenancy
+- evidence: M3b apps/backend/src/modules/auth/auth.repository.ts:39 (TEN-05) (repo-layer)
+- last seen: 2026-10-04T03:22:20Z
+
+### L-005 - Test that a validly signed token with out-of-range claims is rejected, not only bad signatures and expiry
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `http` · harmful: 0
+- features: auth-tenancy
+- evidence: M19 apps/backend/src/infra/jwt.ts:14 (http)
+- last seen: 2026-10-04T03:22:20Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
