@@ -3,6 +3,11 @@ import { z } from "zod";
 const envSchema = z.object({
 	PORT: z.string().transform(Number).pipe(z.number().int().positive()),
 	DATABASE_URL: z.url(),
+	JWT_SECRET: z.string().min(32),
+	CORS_ORIGIN: z.url(),
+	NODE_ENV: z
+		.enum(["development", "test", "production"])
+		.default("development"),
 });
 
 export type Env = z.infer<typeof envSchema>;
