@@ -17,6 +17,25 @@
 		"test:watch": {
 			"cache": false,
 			"persistent": true
+		},
+		"db:up": {
+			"cache": false
+		},
+		"db:down": {
+			"cache": false
+		},
+		"db:generate": {
+			"cache": false
+		},
+		"db:migrate": {
+			"cache": false
+		},
+		"db:seed": {
+			"cache": false
+		},
+		"db:studio": {
+			"cache": false,
+			"persistent": true
 		}
 	}
 }

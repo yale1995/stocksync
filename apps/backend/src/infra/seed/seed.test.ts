@@ -2,6 +2,7 @@ import { count, eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { db } from "../db.js";
 import { verifyPassword } from "../password.js";
+import { products } from "../schemas/products.js";
 import { tenants } from "../schemas/tenants.js";
 import { users } from "../schemas/users.js";
 import { seed, seedTenants } from "./seed.js";
@@ -50,14 +51,37 @@ describe("seed", () => {
 		}
 	});
 
+	it("creates two products per tenant, with CAM-P in both and one out of stock each", async () => {
+		await seed(db);
+
+		const rows = await db
+			.select({
+				tenant: tenants.name,
+				sku: products.sku,
+				stock: products.stock,
+			})
+			.from(products)
+			.innerJoin(tenants, eq(products.tenantId, tenants.id))
+			.orderBy(tenants.name, products.sku);
+
+		expect(rows).toEqual([
+			{ tenant: "Acme", sku: "BON-01", stock: 0 },
+			{ tenant: "Acme", sku: "CAM-P", stock: 25 },
+			{ tenant: "Globex", sku: "CAM-P", stock: 10 },
+			{ tenant: "Globex", sku: "CAN-01", stock: 0 },
+		]);
+	});
+
 	it("runs twice without errors or duplicate rows", async () => {
 		await seed(db);
 		await seed(db);
 
 		const [tenantCount] = await db.select({ value: count() }).from(tenants);
 		const [userCount] = await db.select({ value: count() }).from(users);
+		const [productCount] = await db.select({ value: count() }).from(products);
 
 		expect(tenantCount?.value).toBe(2);
 		expect(userCount?.value).toBe(4);
+		expect(productCount?.value).toBe(4);
 	});
 });

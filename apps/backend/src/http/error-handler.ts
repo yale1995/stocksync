@@ -1,5 +1,9 @@
-import type { ErrorRequestHandler } from "express";
-import { AppError, InternalServerError } from "./errors.js";
+import type { ErrorRequestHandler, RequestHandler } from "express";
+import { AppError, InternalServerError, NotFoundError } from "./errors.js";
+
+export const notFoundHandler: RequestHandler = (req) => {
+	throw new NotFoundError(`Route ${req.method} ${req.path} not found`);
+};
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 	if (err instanceof AppError) {
