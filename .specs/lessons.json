@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 4,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "ac_gap::when a spec enumerates a set of variants cover every variant with a table driven test asserting each listed value",
+      "text": "When a spec enumerates a set of variants, cover every variant with a table-driven test asserting each listed value",
+      "signal": "ac_gap",
+      "scope": "http",
+      "status": "candidate",
+      "features": [
+        "errors"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ERR-02 / M5,M6 (http)"
+      ],
+      "created": "2026-10-04T02:57:57Z",
+      "last_seen": "2026-10-04T02:57:57Z"
+    },
+    {
+      "id": "L-002",
+      "key": "surviving_mutant::assert default values explicitly not only caller overridden ones",
+      "text": "Assert default values explicitly, not only caller-overridden ones",
+      "signal": "surviving_mutant",
+      "scope": "http",
+      "status": "candidate",
+      "features": [
+        "errors"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M7 apps/backend/src/http/errors.ts:16 (http)"
+      ],
+      "created": "2026-10-04T02:57:57Z",
+      "last_seen": "2026-10-04T02:57:57Z"
+    },
+    {
+      "id": "L-003",
+      "key": "surviving_mutant::test shared middleware through the real app factory not only a throwaway app",
+      "text": "Test shared middleware through the real app factory, not only a throwaway app",
+      "signal": "surviving_mutant",
+      "scope": "http",
+      "status": "candidate",
+      "features": [
+        "errors"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M3 apps/backend/src/app.ts:11 (http)"
+      ],
+      "created": "2026-10-04T02:57:57Z",
+      "last_seen": "2026-10-04T02:57:57Z"
+    }
+  ]
+}

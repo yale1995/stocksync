@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**", "!apps/backend/src/infra/migrations"]
+		"includes": ["**", "!apps/backend/src/infra/migrations", "!.specs"]
 	},
 	"formatter": {
 		"enabled": true,
