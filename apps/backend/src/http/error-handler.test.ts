@@ -131,4 +131,22 @@ describe("createApp", () => {
 			},
 		});
 	});
+
+	it("returns 404 for an unknown path", async () => {
+		const response = await request(createApp()).get("/unknown?page=2");
+
+		expect(response.status).toBe(404);
+		expect(response.body).toEqual({
+			error: { code: "NOT_FOUND", message: "Route GET /unknown not found" },
+		});
+	});
+
+	it("returns 404 for an unsupported method on a known path", async () => {
+		const response = await request(createApp()).delete("/health");
+
+		expect(response.status).toBe(404);
+		expect(response.body).toEqual({
+			error: { code: "NOT_FOUND", message: "Route DELETE /health not found" },
+		});
+	});
 });
