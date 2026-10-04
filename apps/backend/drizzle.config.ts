@@ -1,16 +1,10 @@
-import { existsSync } from "node:fs";
 import { defineConfig } from "drizzle-kit";
-
-if (existsSync(".env")) {
-	process.loadEnvFile(".env");
-}
+import { env } from "./src/infra/env.js";
 
 export default defineConfig({
 	dialect: "postgresql",
 	schema: "./src/infra/schemas",
 	out: "./src/infra/migrations",
 	casing: "snake_case",
-	dbCredentials: {
-		url: process.env.DATABASE_URL,
-	},
+	dbCredentials: { url: env.DATABASE_URL },
 });
