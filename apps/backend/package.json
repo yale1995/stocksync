@@ -13,15 +13,23 @@
 		"db:up": "docker compose -f src/infra/compose.yaml up -d --wait",
 		"db:down": "docker compose -f src/infra/compose.yaml down",
 		"db:generate": "drizzle-kit generate",
-		"db:migrate": "drizzle-kit migrate"
+		"db:migrate": "drizzle-kit migrate",
+		"db:studio": "drizzle-kit studio",
+		"db:seed": "tsx --env-file-if-exists=.env src/infra/seed/run.ts"
 	},
 	"dependencies": {
+		"bcryptjs": "^3.0.3",
+		"cookie-parser": "^1.4.7",
+		"cors": "^2.8.6",
 		"drizzle-orm": "^0.45.3",
 		"express": "^5.2.1",
+		"jose": "^6.2.12",
 		"pg": "^8.23.1",
 		"zod": "^4.6.5"
 	},
 	"devDependencies": {
+		"@types/cookie-parser": "^1.4.10",
+		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.6",
 		"@types/node": "^24.19.1",
 		"@types/pg": "^8.23.1",

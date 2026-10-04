@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 4,
+  "next_id": 6,
   "lessons": [
     {
       "id": "L-001",
@@ -58,6 +58,42 @@
       ],
       "created": "2026-10-04T02:57:57Z",
       "last_seen": "2026-10-04T02:57:57Z"
+    },
+    {
+      "id": "L-004",
+      "key": "surviving_mutant::test each query s soft delete filter through its own route not only through a predicate shared with another route",
+      "text": "Test each query's soft-delete filter through its own route, not only through a predicate shared with another route",
+      "signal": "surviving_mutant",
+      "scope": "repo-layer",
+      "status": "candidate",
+      "features": [
+        "auth-tenancy"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M3b apps/backend/src/modules/auth/auth.repository.ts:39 (TEN-05) (repo-layer)"
+      ],
+      "created": "2026-10-04T03:22:20Z",
+      "last_seen": "2026-10-04T03:22:20Z"
+    },
+    {
+      "id": "L-005",
+      "key": "surviving_mutant::test that a validly signed token with out of range claims is rejected not only bad signatures and expiry",
+      "text": "Test that a validly signed token with out-of-range claims is rejected, not only bad signatures and expiry",
+      "signal": "surviving_mutant",
+      "scope": "http",
+      "status": "candidate",
+      "features": [
+        "auth-tenancy"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M19 apps/backend/src/infra/jwt.ts:14 (http)"
+      ],
+      "created": "2026-10-04T03:22:20Z",
+      "last_seen": "2026-10-04T03:22:20Z"
     }
   ]
 }
