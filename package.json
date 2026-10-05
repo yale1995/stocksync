@@ -3,6 +3,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "turbo run dev",
+		"dev:worker": "pnpm --filter stocksync-api dev:worker",
 		"build": "turbo run build",
 		"test": "turbo run test",
 		"typecheck": "turbo run typecheck",
