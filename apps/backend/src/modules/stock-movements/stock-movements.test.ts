@@ -297,7 +297,10 @@ describe("POST /products/:id/stock-adjustments", () => {
 
 		expect(response.status).toBe(409);
 		expect(response.body).toEqual({
-			error: { code: "CONFLICT", message: "Insufficient stock" },
+			error: {
+				code: "CONFLICT",
+				message: "Insufficient stock for CAM-P (available: 25, requested: 26)",
+			},
 		});
 		expect((await findProduct("Acme", "CAM-P")).stock).toBe(25);
 		expect(await movementsOf(camP.id)).toHaveLength(1);
