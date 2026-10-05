@@ -102,6 +102,48 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md M49, M50 (apps/ads-mock/src/env.ts:4-6) (env)
 - last seen: 2026-10-05T16:08:22Z
 
+### L-016 - Test SKIP LOCKED claims by holding a row lock in a second transaction and asserting the tick skips those rows
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `worker` · harmful: 0
+- features: sync-worker
+- evidence: validation.md R1,R2 (sync.repository.ts:35,59) (worker)
+- last seen: 2026-10-05T17:51:57Z
+
+### L-017 - Test each ORDER BY key with fixtures where that key and the next one disagree
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `worker` · harmful: 0
+- features: sync-worker
+- evidence: validation.md R3,R4,R5 (sync.repository.ts:33) (worker)
+- last seen: 2026-10-05T17:51:58Z
+
+### L-018 - Test batch size limits with more due rows than the limit and assert which rows were claimed
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `worker` · harmful: 0
+- features: sync-worker
+- evidence: validation.md R8,R9 (sync.repository.ts:57-58) (worker)
+- last seen: 2026-10-05T17:51:58Z
+
+### L-019 - Assert side effects that run before an external call on the failure path too, where later success-path writes cannot mask them
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `worker` · harmful: 0
+- features: sync-worker
+- evidence: validation.md W3 (sync.worker.ts:91) (worker)
+- last seen: 2026-10-05T17:51:58Z
+
+### L-020 - When a spec says any 2xx is success, test at least one 2xx status other than 200
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `http-client` · harmful: 0
+- features: sync-worker
+- evidence: validation.md A9 (ads-client.ts:56) (http-client)
+- last seen: 2026-10-05T17:51:58Z
+
+### L-021 - When a spec requires work to happen outside a transaction, assert no transaction is open at that point
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `worker` · harmful: 0
+- features: sync-worker
+- evidence: validation.md W13 (sync.worker.ts:75-77) (worker)
+- last seen: 2026-10-05T17:51:58Z
+
+### L-022 - When a test checks output derived from a per-key lookup (by product, tenant), put several keys in the fixture so a lookup that ignores the key fails
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: sync-worker
+- evidence: LW8/LW16 apps/backend/src/modules/sync/sync.worker.ts:101 (tests)
+- last seen: 2026-10-05T18:59:16Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

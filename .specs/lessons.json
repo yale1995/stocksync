@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 16,
+  "next_id": 23,
   "lessons": [
     {
       "id": "L-001",
@@ -278,6 +278,132 @@
       ],
       "created": "2026-10-05T16:08:22Z",
       "last_seen": "2026-10-05T16:08:22Z"
+    },
+    {
+      "id": "L-016",
+      "key": "surviving_mutant::test skip locked claims by holding a row lock in a second transaction and asserting the tick skips those rows",
+      "text": "Test SKIP LOCKED claims by holding a row lock in a second transaction and asserting the tick skips those rows",
+      "signal": "surviving_mutant",
+      "scope": "worker",
+      "status": "candidate",
+      "features": [
+        "sync-worker"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md R1,R2 (sync.repository.ts:35,59) (worker)"
+      ],
+      "created": "2026-10-05T17:51:57Z",
+      "last_seen": "2026-10-05T17:51:57Z"
+    },
+    {
+      "id": "L-017",
+      "key": "surviving_mutant::test each order by key with fixtures where that key and the next one disagree",
+      "text": "Test each ORDER BY key with fixtures where that key and the next one disagree",
+      "signal": "surviving_mutant",
+      "scope": "worker",
+      "status": "candidate",
+      "features": [
+        "sync-worker"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md R3,R4,R5 (sync.repository.ts:33) (worker)"
+      ],
+      "created": "2026-10-05T17:51:58Z",
+      "last_seen": "2026-10-05T17:51:58Z"
+    },
+    {
+      "id": "L-018",
+      "key": "surviving_mutant::test batch size limits with more due rows than the limit and assert which rows were claimed",
+      "text": "Test batch size limits with more due rows than the limit and assert which rows were claimed",
+      "signal": "surviving_mutant",
+      "scope": "worker",
+      "status": "candidate",
+      "features": [
+        "sync-worker"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md R8,R9 (sync.repository.ts:57-58) (worker)"
+      ],
+      "created": "2026-10-05T17:51:58Z",
+      "last_seen": "2026-10-05T17:51:58Z"
+    },
+    {
+      "id": "L-019",
+      "key": "surviving_mutant::assert side effects that run before an external call on the failure path too where later success path writes cannot mask them",
+      "text": "Assert side effects that run before an external call on the failure path too, where later success-path writes cannot mask them",
+      "signal": "surviving_mutant",
+      "scope": "worker",
+      "status": "candidate",
+      "features": [
+        "sync-worker"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md W3 (sync.worker.ts:91) (worker)"
+      ],
+      "created": "2026-10-05T17:51:58Z",
+      "last_seen": "2026-10-05T17:51:58Z"
+    },
+    {
+      "id": "L-020",
+      "key": "surviving_mutant::when a spec says any 2xx is success test at least one 2xx status other than 200",
+      "text": "When a spec says any 2xx is success, test at least one 2xx status other than 200",
+      "signal": "surviving_mutant",
+      "scope": "http-client",
+      "status": "candidate",
+      "features": [
+        "sync-worker"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md A9 (ads-client.ts:56) (http-client)"
+      ],
+      "created": "2026-10-05T17:51:58Z",
+      "last_seen": "2026-10-05T17:51:58Z"
+    },
+    {
+      "id": "L-021",
+      "key": "surviving_mutant::when a spec requires work to happen outside a transaction assert no transaction is open at that point",
+      "text": "When a spec requires work to happen outside a transaction, assert no transaction is open at that point",
+      "signal": "surviving_mutant",
+      "scope": "worker",
+      "status": "candidate",
+      "features": [
+        "sync-worker"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md W13 (sync.worker.ts:75-77) (worker)"
+      ],
+      "created": "2026-10-05T17:51:58Z",
+      "last_seen": "2026-10-05T17:51:58Z"
+    },
+    {
+      "id": "L-022",
+      "key": "surviving_mutant::when a test checks output derived from a per key lookup by product tenant put several keys in the fixture so a lookup that ignores the key fails",
+      "text": "When a test checks output derived from a per-key lookup (by product, tenant), put several keys in the fixture so a lookup that ignores the key fails",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "sync-worker"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "LW8/LW16 apps/backend/src/modules/sync/sync.worker.ts:101 (tests)"
+      ],
+      "created": "2026-10-05T18:59:16Z",
+      "last_seen": "2026-10-05T18:59:16Z"
     }
   ]
 }
