@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 6,
+  "next_id": 9,
   "lessons": [
     {
       "id": "L-001",
@@ -94,6 +94,60 @@
       ],
       "created": "2026-10-04T03:22:20Z",
       "last_seen": "2026-10-04T03:22:20Z"
+    },
+    {
+      "id": "L-006",
+      "key": "surviving_mutant::give every database check constraint a raw insert test asserting its constraint name not only the ones a prompt lists",
+      "text": "Give every database CHECK constraint a raw-insert test asserting its constraint name, not only the ones a prompt lists",
+      "signal": "surviving_mutant",
+      "scope": "schema",
+      "status": "candidate",
+      "features": [
+        "stock-movements"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M21,M24,M25 (0002_parallel_forgotten_one.sql:14-18) (schema)"
+      ],
+      "created": "2026-10-04T15:14:36Z",
+      "last_seen": "2026-10-04T15:14:36Z"
+    },
+    {
+      "id": "L-007",
+      "key": "surviving_mutant::test composite tenant foreign keys with a raw insert that mixes tenants and assert the fk constraint name",
+      "text": "Test composite tenant foreign keys with a raw insert that mixes tenants and assert the FK constraint name",
+      "signal": "surviving_mutant",
+      "scope": "schema",
+      "status": "candidate",
+      "features": [
+        "stock-movements"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M22,M26 (0002_parallel_forgotten_one.sql:22-23) (schema)"
+      ],
+      "created": "2026-10-04T15:14:36Z",
+      "last_seen": "2026-10-04T15:14:36Z"
+    },
+    {
+      "id": "L-008",
+      "key": "spec_precision_gap::assert the full error body including the message whenever the spec fixes the message text",
+      "text": "Assert the full error body including the message whenever the spec fixes the message text",
+      "signal": "spec_precision_gap",
+      "scope": "routes",
+      "status": "candidate",
+      "features": [
+        "stock-movements"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "MOV-05 stock-movements.test.ts:285 (routes)"
+      ],
+      "created": "2026-10-04T15:14:36Z",
+      "last_seen": "2026-10-04T15:14:36Z"
     }
   ]
 }
