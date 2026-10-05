@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MAX_STOCK } from "../products/products.validation.js";
+import { MAX_STOCK } from "./products.validation.js";
 
 export const idempotencyKeySchema = z.uuid();
 

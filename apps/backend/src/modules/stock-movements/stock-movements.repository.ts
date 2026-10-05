@@ -1,8 +1,8 @@
 import { and, count, desc, eq } from "drizzle-orm";
+import type { ListStockMovementsQuery } from "../../http/controllers/stock-movements.validation.js";
 import { db, type Executor } from "../../infra/db.js";
 import { stockMovements } from "../../infra/schemas/stock-movements.js";
 import { users } from "../../infra/schemas/users.js";
-import type { ListStockMovementsQuery } from "./stock-movements.validation.js";
 
 const movementColumns = {
 	id: stockMovements.id,

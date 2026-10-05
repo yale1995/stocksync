@@ -4,9 +4,10 @@
 
 Backend code in `apps/backend/src/` is organized as:
 
-- `infra/`: technical details only (compose, env, db, Drizzle `schemas/`, `migrations/`).
-- `http/`: shared HTTP pieces (errors, error handler, auth and role middlewares).
-- `modules/<feature>/`: `*.routes.ts` (Zod validation, HTTP status), `*.service.ts` (business rules, transactions), `*.repository.ts` (Drizzle queries, always filtered by `tenantId`), `*.validation.ts` (Zod schemas) and `*.test.ts`.
+- `infra/`: technical details (compose, env, db, Drizzle `schemas/`, `migrations/`) and `errors.ts` (`AppError` subclasses and `formatZodIssues`).
+- `http/middlewares/`: error handler, auth and role middlewares.
+- `http/controllers/`: `<feature>.controller.ts` (Express router, Zod validation, HTTP status) and `<feature>.validation.ts` (Zod schemas).
+- `modules/<feature>/`: `*.service.ts` (business rules, transactions), `*.repository.ts` (Drizzle queries, always filtered by `tenantId`) and `*.test.ts`.
 
 ## Code comments
 

@@ -1,13 +1,13 @@
-import { ConflictError, NotFoundError } from "../../http/errors.js";
-import { db } from "../../infra/db.js";
-import { recordInitialMovement } from "../stock-movements/stock-movements.service.js";
-import type { Product } from "./products.repository.js";
-import * as repository from "./products.repository.js";
 import type {
 	CreateProductInput,
 	ListProductsQuery,
 	UpdateProductInput,
-} from "./products.validation.js";
+} from "../../http/controllers/products.validation.js";
+import { db } from "../../infra/db.js";
+import { ConflictError, NotFoundError } from "../../infra/errors.js";
+import { recordInitialMovement } from "../stock-movements/stock-movements.service.js";
+import type { Product } from "./products.repository.js";
+import * as repository from "./products.repository.js";
 
 const PRODUCT_NOT_FOUND = "Product not found";
 

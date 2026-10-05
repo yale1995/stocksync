@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
-import { verifyAccessToken } from "../infra/jwt.js";
-import { UnauthorizedError } from "./errors.js";
+import { UnauthorizedError } from "../../infra/errors.js";
+import { verifyAccessToken } from "../../infra/jwt.js";
 
 export const ACCESS_TOKEN_COOKIE = "access_token";
 

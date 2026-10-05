@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
-import type { UserRole } from "../infra/schemas/users.js";
-import { ForbiddenError } from "./errors.js";
+import { ForbiddenError } from "../../infra/errors.js";
+import type { UserRole } from "../../infra/schemas/users.js";
 
 export function requireRole(...roles: UserRole[]): RequestHandler {
 	return (req, _res, next) => {

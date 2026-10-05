@@ -1,4 +1,4 @@
-import { UnauthorizedError } from "../../http/errors.js";
+import { UnauthorizedError } from "../../infra/errors.js";
 import { type AccessTokenClaims, signAccessToken } from "../../infra/jwt.js";
 import { verifyPassword } from "../../infra/password.js";
 import {

@@ -1,17 +1,17 @@
-import { ConflictError, NotFoundError } from "../../http/errors.js";
+import { MAX_STOCK } from "../../http/controllers/products.validation.js";
+import type {
+	CreateStockAdjustmentInput,
+	ListStockMovementsQuery,
+} from "../../http/controllers/stock-movements.validation.js";
 import { db, type Transaction } from "../../infra/db.js";
+import { ConflictError, NotFoundError } from "../../infra/errors.js";
 import type {
 	StockMovementDirection,
 	StockMovementSource,
 } from "../../infra/schemas/stock-movements.js";
 import * as productsRepository from "../products/products.repository.js";
-import { MAX_STOCK } from "../products/products.validation.js";
 import type { StockMovement } from "./stock-movements.repository.js";
 import * as repository from "./stock-movements.repository.js";
-import type {
-	CreateStockAdjustmentInput,
-	ListStockMovementsQuery,
-} from "./stock-movements.validation.js";
 
 const PRODUCT_NOT_FOUND = "Product not found";
 

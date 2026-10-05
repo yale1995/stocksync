@@ -1,9 +1,12 @@
 import { createHash } from "node:crypto";
-import { ConflictError } from "../../http/errors.js";
+import type {
+	CreateSaleInput,
+	SaleItemInput,
+} from "../../http/controllers/sales.validation.js";
 import { db } from "../../infra/db.js";
+import { ConflictError } from "../../infra/errors.js";
 import { applyStockChanges } from "../stock-movements/stock-movements.service.js";
 import * as repository from "./sales.repository.js";
-import type { CreateSaleInput, SaleItemInput } from "./sales.validation.js";
 
 const PRODUCTS_NOT_FOUND = "One or more products were not found";
 

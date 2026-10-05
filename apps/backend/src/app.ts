@@ -1,13 +1,16 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { type Express } from "express";
-import { errorHandler, notFoundHandler } from "./http/error-handler.js";
+import { authRouter } from "./http/controllers/auth.controller.js";
+import { healthRouter } from "./http/controllers/health.controller.js";
+import { productsRouter } from "./http/controllers/products.controller.js";
+import { salesRouter } from "./http/controllers/sales.controller.js";
+import { stockMovementsRouter } from "./http/controllers/stock-movements.controller.js";
+import {
+	errorHandler,
+	notFoundHandler,
+} from "./http/middlewares/error-handler.js";
 import { env } from "./infra/env.js";
-import { authRouter } from "./modules/auth/auth.routes.js";
-import { healthRouter } from "./modules/health/health.routes.js";
-import { productsRouter } from "./modules/products/products.routes.js";
-import { salesRouter } from "./modules/sales/sales.routes.js";
-import { stockMovementsRouter } from "./modules/stock-movements/stock-movements.routes.js";
 
 export function createApp(): Express {
 	const app = express();

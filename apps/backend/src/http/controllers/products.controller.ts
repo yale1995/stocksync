@@ -3,16 +3,16 @@ import {
 	formatZodIssues,
 	NotFoundError,
 	ValidationError,
-} from "../../http/errors.js";
-import { requireAuth } from "../../http/require-auth.js";
-import { requireRole } from "../../http/require-role.js";
+} from "../../infra/errors.js";
 import {
 	createProduct,
 	deleteProduct,
 	getProduct,
 	listProducts,
 	updateProduct,
-} from "./products.service.js";
+} from "../../modules/products/products.service.js";
+import { requireAuth } from "../middlewares/require-auth.js";
+import { requireRole } from "../middlewares/require-role.js";
 import {
 	createProductSchema,
 	listProductsQuerySchema,
