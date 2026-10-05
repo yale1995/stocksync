@@ -10,6 +10,7 @@ import type {
 	StockMovementSource,
 } from "../../infra/schemas/stock-movements.js";
 import * as productsRepository from "../products/products.repository.js";
+import { recordSyncEvent } from "../sync/sync.service.js";
 import type { StockMovement } from "./stock-movements.repository.js";
 import * as repository from "./stock-movements.repository.js";
 
@@ -57,9 +58,9 @@ function insufficientStockMessage(
 }
 
 // The only path that changes the stock of an existing product. Runs inside the
-// caller's transaction so sales and the Part B sync event commit atomically
-// with the stock and its movements. Items are processed in productId order,
-// the same order the rows are locked in.
+// caller's transaction so the sale, the stock, its movements and the sync
+// events commit atomically. Items are processed in productId order, the same
+// order the rows are locked in.
 export async function applyStockChanges(
 	tx: Transaction,
 	{ tenantId, userId, source, saleId, notFoundMessage, items }: StockChanges,
@@ -101,6 +102,14 @@ export async function applyStockChanges(
 			{ ...item, tenantId, userId, source, saleId, stockAfter },
 			tx,
 		);
+		await recordSyncEvent(tx, {
+			tenantId,
+			productId: product.id,
+			trigger: "stock_changed",
+			sku: product.sku,
+			stock: stockAfter,
+			priceCents: product.priceCents,
+		});
 		applied.push({
 			productId: product.id,
 			quantity: item.quantity,

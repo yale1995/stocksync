@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { db } from "../db.js";
 import { verifyPassword } from "../password.js";
 import { products } from "../schemas/products.js";
+import { syncEvents } from "../schemas/sync-events.js";
 import { tenants } from "../schemas/tenants.js";
 import { users } from "../schemas/users.js";
 import { seed, seedTenants } from "./seed.js";
@@ -69,6 +70,62 @@ describe("seed", () => {
 			{ tenant: "Acme", sku: "CAM-P", stock: 25 },
 			{ tenant: "Globex", sku: "CAM-P", stock: 10 },
 			{ tenant: "Globex", sku: "CAN-01", stock: 0 },
+		]);
+	});
+
+	it("records one pending product_created event per product, once", async () => {
+		await seed(db);
+		await seed(db);
+
+		const rows = await db
+			.select({
+				tenant: tenants.name,
+				productSku: products.sku,
+				sku: syncEvents.sku,
+				trigger: syncEvents.trigger,
+				stock: syncEvents.stock,
+				priceCents: syncEvents.priceCents,
+				status: syncEvents.status,
+			})
+			.from(syncEvents)
+			.innerJoin(tenants, eq(syncEvents.tenantId, tenants.id))
+			.innerJoin(products, eq(syncEvents.productId, products.id))
+			.orderBy(tenants.name, syncEvents.sku);
+
+		const created = { trigger: "product_created", status: "pending" };
+		expect(rows).toEqual([
+			{
+				...created,
+				tenant: "Acme",
+				productSku: "BON-01",
+				sku: "BON-01",
+				stock: 0,
+				priceCents: 2990,
+			},
+			{
+				...created,
+				tenant: "Acme",
+				productSku: "CAM-P",
+				sku: "CAM-P",
+				stock: 25,
+				priceCents: 4990,
+			},
+			{
+				...created,
+				tenant: "Globex",
+				productSku: "CAM-P",
+				sku: "CAM-P",
+				stock: 10,
+				priceCents: 5490,
+			},
+			{
+				...created,
+				tenant: "Globex",
+				productSku: "CAN-01",
+				sku: "CAN-01",
+				stock: 0,
+				priceCents: 1990,
+			},
 		]);
 	});
 

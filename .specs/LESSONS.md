@@ -72,6 +72,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: D1 0003_swift_justice.sql:25 (SALE-17, sales.test.ts:457) (concurrency)
 - last seen: 2026-10-05T04:18:30Z
 
+### L-011 - When a spec requires a FOR UPDATE read in several flows, give each flow its own lock-holding test (hold the row lock, change the row, then release) so swapping any one read for an unlocked one fails
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `concurrency` · harmful: 0
+- features: sync-events
+- evidence: M14 products.service.ts:104 (concurrency)
+- last seen: 2026-10-05T15:51:13Z
+
+### L-012 - When a spec names an index shape (columns or a partial WHERE), assert its definition from pg_indexes instead of relying on inspection
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `schema` · harmful: 0
+- features: sync-events
+- evidence: D8 0004_dashing_tiger_shark.sql:28 (schema)
+- last seen: 2026-10-05T15:51:13Z
+
+### L-013 - Assert every column default the spec lists on a freshly inserted row, including timestamp defaults such as now()
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `schema` · harmful: 0
+- features: sync-events
+- evidence: D12 0004_dashing_tiger_shark.sql:14 (schema)
+- last seen: 2026-10-05T15:51:13Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
