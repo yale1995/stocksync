@@ -2,6 +2,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import type { Executor } from "../db.js";
 import { hashPassword } from "../password.js";
 import { products } from "../schemas/products.js";
+import { stockMovements } from "../schemas/stock-movements.js";
 import { tenants } from "../schemas/tenants.js";
 import { type UserRole, users } from "../schemas/users.js";
 
@@ -82,26 +83,32 @@ async function createUserIfMissing(
 	executor: Executor,
 	tenantId: string,
 	user: SeedUser,
-) {
+): Promise<string> {
 	const email = user.email.toLowerCase();
 	const [existing] = await executor
 		.select({ id: users.id })
 		.from(users)
 		.where(and(eq(users.email, email), isNull(users.deletedAt)))
 		.limit(1);
-	if (existing) return;
+	if (existing) return existing.id;
 
-	await executor.insert(users).values({
-		tenantId,
-		email,
-		passwordHash: await hashPassword(user.password),
-		role: user.role,
-	});
+	const [created] = await executor
+		.insert(users)
+		.values({
+			tenantId,
+			email,
+			passwordHash: await hashPassword(user.password),
+			role: user.role,
+		})
+		.returning({ id: users.id });
+	if (!created) throw new Error(`Failed to create user ${email}`);
+	return created.id;
 }
 
 async function createProductIfMissing(
 	executor: Executor,
 	tenantId: string,
+	adminId: string,
 	product: SeedProduct,
 ) {
 	const [existing] = await executor
@@ -117,17 +124,36 @@ async function createProductIfMissing(
 		.limit(1);
 	if (existing) return;
 
-	await executor.insert(products).values({ tenantId, ...product });
+	await executor.transaction(async (tx) => {
+		const [created] = await tx
+			.insert(products)
+			.values({ tenantId, ...product })
+			.returning({ id: products.id });
+		if (!created) throw new Error(`Failed to create product ${product.sku}`);
+
+		await tx.insert(stockMovements).values({
+			tenantId,
+			productId: created.id,
+			userId: adminId,
+			direction: "in",
+			source: "initial",
+			quantity: product.stock,
+			stockAfter: product.stock,
+		});
+	});
 }
 
 export async function seed(executor: Executor) {
 	for (const tenant of seedTenants) {
 		const tenantId = await findOrCreateTenant(executor, tenant.name);
+		let adminId: string | undefined;
 		for (const user of tenant.users) {
-			await createUserIfMissing(executor, tenantId, user);
+			const userId = await createUserIfMissing(executor, tenantId, user);
+			if (user.role === "admin") adminId = userId;
 		}
+		if (!adminId) throw new Error(`Seed tenant ${tenant.name} has no admin`);
 		for (const product of tenant.products) {
-			await createProductIfMissing(executor, tenantId, product);
+			await createProductIfMissing(executor, tenantId, adminId, product);
 		}
 	}
 }

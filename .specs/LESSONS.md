@@ -44,6 +44,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M19 apps/backend/src/infra/jwt.ts:14 (http)
 - last seen: 2026-10-04T03:22:20Z
 
+### L-006 - Give every database CHECK constraint a raw-insert test asserting its constraint name, not only the ones a prompt lists
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `schema` · harmful: 0
+- features: stock-movements
+- evidence: validation.md M21,M24,M25 (0002_parallel_forgotten_one.sql:14-18) (schema)
+- last seen: 2026-10-04T15:14:36Z
+
+### L-007 - Test composite tenant foreign keys with a raw insert that mixes tenants and assert the FK constraint name
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `schema` · harmful: 0
+- features: stock-movements
+- evidence: validation.md M22,M26 (0002_parallel_forgotten_one.sql:22-23) (schema)
+- last seen: 2026-10-04T15:14:36Z
+
+### L-008 - Assert the full error body including the message whenever the spec fixes the message text
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: stock-movements
+- evidence: MOV-05 stock-movements.test.ts:285 (routes)
+- last seen: 2026-10-04T15:14:36Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

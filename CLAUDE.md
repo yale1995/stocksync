@@ -18,5 +18,6 @@ Backend code in `apps/backend/src/` is organized as:
 
 - Write table names explicitly in plural snake_case, e.g. `pgTable("sale_items", ...)`. Do not derive them with `pgTableCreator` or a pluralization library.
 - Use soft delete: a nullable `deleted_at` column instead of `DELETE`. Queries exclude rows where `deleted_at` is set, and unique constraints become partial indexes `WHERE deleted_at IS NULL`.
+- Exception: `stock_movements` is an append-only ledger with no `updated_at` and no `deleted_at`. A movement is never edited or deleted; a wrong adjustment is corrected with an opposite adjustment.
 - Date and time columns always use `timestamptz` (`timestamp({ withTimezone: true })`), never `timestamp` without time zone.
 - Check business rules (duplicates, existence) with an explicit query before writing and throw the matching error, e.g. `ConflictError` or `NotFoundError`. Do not write first and translate Postgres error codes such as `23505`. Keep the constraints as the last line of defense: a concurrent race that slips past the check hits the constraint and becomes a 500. Where concurrency is a requirement (stock, idempotency), run the check under a lock (`SELECT ... FOR UPDATE`, or an advisory lock for rows that do not exist yet).
