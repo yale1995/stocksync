@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 14,
+  "next_id": 16,
   "lessons": [
     {
       "id": "L-001",
@@ -242,6 +242,42 @@
       ],
       "created": "2026-10-05T15:51:13Z",
       "last_seen": "2026-10-05T15:51:13Z"
+    },
+    {
+      "id": "L-014",
+      "key": "surviving_mutant::give every integer field in a request schema a fractional value rejection test not only the first one",
+      "text": "Give every integer field in a request schema a fractional-value rejection test, not only the first one",
+      "signal": "surviving_mutant",
+      "scope": "validation",
+      "status": "candidate",
+      "features": [
+        "ads-mock"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M10, M13 (apps/ads-mock/src/app.ts:34-35) (validation)"
+      ],
+      "created": "2026-10-05T16:08:22Z",
+      "last_seen": "2026-10-05T16:08:22Z"
+    },
+    {
+      "id": "L-015",
+      "key": "surviving_mutant::export the env schema separately from the exiting parse so defaults and bounds can be unit tested",
+      "text": "Export the env schema separately from the exiting parse so defaults and bounds can be unit tested",
+      "signal": "surviving_mutant",
+      "scope": "env",
+      "status": "candidate",
+      "features": [
+        "ads-mock"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M49, M50 (apps/ads-mock/src/env.ts:4-6) (env)"
+      ],
+      "created": "2026-10-05T16:08:22Z",
+      "last_seen": "2026-10-05T16:08:22Z"
     }
   ]
 }

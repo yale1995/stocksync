@@ -90,6 +90,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: D12 0004_dashing_tiger_shark.sql:14 (schema)
 - last seen: 2026-10-05T15:51:13Z
 
+### L-014 - Give every integer field in a request schema a fractional-value rejection test, not only the first one
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `validation` · harmful: 0
+- features: ads-mock
+- evidence: validation.md M10, M13 (apps/ads-mock/src/app.ts:34-35) (validation)
+- last seen: 2026-10-05T16:08:22Z
+
+### L-015 - Export the env schema separately from the exiting parse so defaults and bounds can be unit tested
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `env` · harmful: 0
+- features: ads-mock
+- evidence: validation.md M49, M50 (apps/ads-mock/src/env.ts:4-6) (env)
+- last seen: 2026-10-05T16:08:22Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
