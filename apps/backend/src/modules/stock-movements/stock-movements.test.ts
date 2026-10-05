@@ -69,6 +69,9 @@ describe("database constraints", () => {
 		});
 	}
 
+	// No sale row exists with this id: CHECK constraints run before the FK.
+	const saleId = "0190a8e2-0000-7000-8000-000000000000";
+
 	it.each([
 		[
 			"an initial movement going out",
@@ -77,8 +80,18 @@ describe("database constraints", () => {
 		],
 		[
 			"a sale movement going in",
-			{ source: "sale", direction: "in", reason: null },
+			{ source: "sale", direction: "in", reason: null, saleId },
 			"stock_movements_sale_is_out",
+		],
+		[
+			"a sale movement without a sale_id",
+			{ source: "sale", direction: "out", reason: null },
+			"stock_movements_sale_id_only_for_sales",
+		],
+		[
+			"an adjustment with a sale_id",
+			{ saleId },
+			"stock_movements_sale_id_only_for_sales",
 		],
 		[
 			"an adjustment with quantity 0",
