@@ -20,6 +20,12 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: validation.md M22,M26 (0002_parallel_forgotten_one.sql:22-23) (schema) (+1 more)
 - last seen: 2026-10-05T04:18:30Z
 
+### L-017 - Test each ORDER BY key with fixtures where that key and the next one disagree
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `worker` · harmful: 0
+- features: sync-worker, sync-status
+- evidence: validation.md R3,R4,R5 (sync.repository.ts:33) (worker) (+1 more)
+- last seen: 2026-10-05T19:12:00Z
+
 ## Candidates (under observation - do NOT load as guidance yet)
 
 Seen once or not yet corroborated. Tracked, not trusted.
@@ -89,6 +95,66 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: sync-events
 - evidence: D12 0004_dashing_tiger_shark.sql:14 (schema)
 - last seen: 2026-10-05T15:51:13Z
+
+### L-014 - Give every integer field in a request schema a fractional-value rejection test, not only the first one
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `validation` · harmful: 0
+- features: ads-mock
+- evidence: validation.md M10, M13 (apps/ads-mock/src/app.ts:34-35) (validation)
+- last seen: 2026-10-05T16:08:22Z
+
+### L-015 - Export the env schema separately from the exiting parse so defaults and bounds can be unit tested
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `env` · harmful: 0
+- features: ads-mock
+- evidence: validation.md M49, M50 (apps/ads-mock/src/env.ts:4-6) (env)
+- last seen: 2026-10-05T16:08:22Z
+
+### L-016 - Test SKIP LOCKED claims by holding a row lock in a second transaction and asserting the tick skips those rows
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `worker` · harmful: 0
+- features: sync-worker
+- evidence: validation.md R1,R2 (sync.repository.ts:35,59) (worker)
+- last seen: 2026-10-05T17:51:57Z
+
+### L-018 - Test batch size limits with more due rows than the limit and assert which rows were claimed
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `worker` · harmful: 0
+- features: sync-worker
+- evidence: validation.md R8,R9 (sync.repository.ts:57-58) (worker)
+- last seen: 2026-10-05T17:51:58Z
+
+### L-019 - Assert side effects that run before an external call on the failure path too, where later success-path writes cannot mask them
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `worker` · harmful: 0
+- features: sync-worker
+- evidence: validation.md W3 (sync.worker.ts:91) (worker)
+- last seen: 2026-10-05T17:51:58Z
+
+### L-020 - When a spec says any 2xx is success, test at least one 2xx status other than 200
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `http-client` · harmful: 0
+- features: sync-worker
+- evidence: validation.md A9 (ads-client.ts:56) (http-client)
+- last seen: 2026-10-05T17:51:58Z
+
+### L-021 - When a spec requires work to happen outside a transaction, assert no transaction is open at that point
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `worker` · harmful: 0
+- features: sync-worker
+- evidence: validation.md W13 (sync.worker.ts:75-77) (worker)
+- last seen: 2026-10-05T17:51:58Z
+
+### L-022 - When a test checks output derived from a per-key lookup (by product, tenant), put several keys in the fixture so a lookup that ignores the key fails
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: sync-worker
+- evidence: LW8/LW16 apps/backend/src/modules/sync/sync.worker.ts:101 (tests)
+- last seen: 2026-10-05T18:59:16Z
+
+### L-023 - Seed ordering tests so the spec's sort key runs against insertion, id and version order, or a query sorted by the wrong column passes
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: sync-status
+- evidence: validation.md M18/M30/M31 (sync.repository.ts:214) (tests)
+- last seen: 2026-10-05T19:11:54Z
+
+### L-024 - For tenant-scoped routes, send another tenant's id in query, header and body and assert the token's tenant still wins
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: sync-status
+- evidence: validation.md M25-M27 (sync.controller.ts:8) (routes)
+- last seen: 2026-10-05T19:11:54Z
 
 ## Quarantined (failed when applied - ignore)
 
