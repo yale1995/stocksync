@@ -156,6 +156,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md M25-M27 (sync.controller.ts:8) (routes)
 - last seen: 2026-10-05T19:11:54Z
 
+### L-025 - When a schema must reject unknown keys, unit test it with an extra key at every object level, since generated docs show additionalProperties false either way
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `validation` · harmful: 0
+- features: api-docs
+- evidence: validation.md M1-M5 (common.validation.ts:4, strictObject response schemas) (validation)
+- last seen: 2026-10-05T20:23:05Z
+
+### L-026 - Parse a real response for each nullable field in its null state, not only the populated case
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: api-docs
+- evidence: validation.md M19,M22 (sync.validation.ts:13,21) (tests)
+- last seen: 2026-10-05T20:23:05Z
+
+### L-027 - When behavior depends on NODE_ENV or another env flag, test the wiring in each environment value through the app, not only the pure function it calls
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `env` · harmful: 0
+- features: api-docs
+- evidence: validation.md D1 (docs.controller.ts:7, DOCS-22) (env)
+- last seen: 2026-10-05T20:35:59Z
+
+### L-028 - When a regex asserts that a table cell has content, exclude the delimiter so an empty cell fails
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: api-docs
+- evidence: validation.md D11,D23 (openapi-description.test.ts:86, DOCS-25) (tests)
+- last seen: 2026-10-05T20:35:59Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
