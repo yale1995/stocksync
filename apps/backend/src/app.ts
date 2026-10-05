@@ -6,6 +6,7 @@ import { env } from "./infra/env.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { healthRouter } from "./modules/health/health.routes.js";
 import { productsRouter } from "./modules/products/products.routes.js";
+import { stockMovementsRouter } from "./modules/stock-movements/stock-movements.routes.js";
 
 export function createApp(): Express {
 	const app = express();
@@ -15,6 +16,7 @@ export function createApp(): Express {
 	app.use(express.json());
 	app.use("/health", healthRouter);
 	app.use("/auth", authRouter);
+	app.use("/products/:id", stockMovementsRouter);
 	app.use("/products", productsRouter);
 
 	app.use(notFoundHandler);

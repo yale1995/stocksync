@@ -1,5 +1,6 @@
 import { ConflictError, NotFoundError } from "../../http/errors.js";
 import { db } from "../../infra/db.js";
+import { recordInitialMovement } from "../stock-movements/stock-movements.service.js";
 import type { Product } from "./products.repository.js";
 import * as repository from "./products.repository.js";
 import type {
@@ -29,6 +30,7 @@ export async function getProduct(
 
 export function createProduct(
 	tenantId: string,
+	userId: string,
 	input: CreateProductInput,
 ): Promise<Product> {
 	return db.transaction(async (tx) => {
@@ -40,7 +42,14 @@ export function createProduct(
 		if (existing) {
 			throw new ConflictError(`A product with SKU ${input.sku} already exists`);
 		}
-		return repository.insertProduct(tenantId, input, tx);
+		const product = await repository.insertProduct(tenantId, input, tx);
+		await recordInitialMovement(tx, {
+			tenantId,
+			productId: product.id,
+			userId,
+			quantity: product.stock,
+		});
+		return product;
 	});
 }
 

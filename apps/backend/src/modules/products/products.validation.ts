@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const MAX_STOCK = 1_000_000;
+
 const sku = z
 	.string()
 	.trim()
@@ -12,7 +14,7 @@ const sku = z
 	);
 const name = z.string().trim().min(1).max(200);
 const priceCents = z.number().int().min(0).max(100_000_000);
-const stock = z.number().int().min(0).max(1_000_000);
+const stock = z.number().int().min(0).max(MAX_STOCK);
 
 export const createProductSchema = z.object({ sku, name, priceCents, stock });
 

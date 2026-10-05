@@ -22,7 +22,7 @@ import {
 
 // A malformed id cannot match any product, and letting it reach Postgres would
 // fail the uuid cast with a 500.
-function parseProductId(value: unknown): string {
+export function parseProductId(value: unknown): string {
 	const result = productIdSchema.safeParse(value);
 	if (!result.success) throw new NotFoundError("Product not found");
 	return result.data;
@@ -48,7 +48,8 @@ productsRouter.post("/", requireRole("admin"), async (req, res) => {
 	const result = createProductSchema.safeParse(req.body);
 	if (!result.success) throw new ValidationError(formatZodIssues(result.error));
 
-	res.status(201).json(await createProduct(req.auth.tenantId, result.data));
+	const { tenantId, userId } = req.auth;
+	res.status(201).json(await createProduct(tenantId, userId, result.data));
 });
 
 productsRouter.patch("/:id", requireRole("admin"), async (req, res) => {

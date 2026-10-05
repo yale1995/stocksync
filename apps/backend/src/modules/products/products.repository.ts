@@ -88,6 +88,31 @@ export async function updateProduct(
 	return product;
 }
 
+export async function lockActiveProductStock(
+	tenantId: string,
+	id: string,
+	executor: Executor = db,
+) {
+	const [product] = await executor
+		.select({ id: products.id, stock: products.stock })
+		.from(products)
+		.where(and(isActiveInTenant(tenantId), eq(products.id, id)))
+		.for("update");
+	return product;
+}
+
+export async function updateProductStock(
+	tenantId: string,
+	id: string,
+	stock: number,
+	executor: Executor = db,
+): Promise<void> {
+	await executor
+		.update(products)
+		.set({ stock })
+		.where(and(isActiveInTenant(tenantId), eq(products.id, id)));
+}
+
 export async function softDeleteProduct(
 	tenantId: string,
 	id: string,
