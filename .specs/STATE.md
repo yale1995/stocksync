@@ -20,7 +20,8 @@
 - AD-016: Product changes relevant to the ads service are written to a Postgres outbox, `sync_events`, in the same transaction as the change (no dual write, no extra infrastructure). Only the worker updates a row afterwards; rows are never deleted, so the table has `updated_at` and no `deleted_at` (feature `sync-events`).
 - AD-017: `sync_events.version` is one table-wide `GENERATED ALWAYS AS IDENTITY` sequence, not a per-product counter or a timestamp. The event is always inserted after the product row is locked (or inserted), so the later change to a product always has the greater version (feature `sync-events`).
 - AD-018: Every flow that records a sync event follows lock, decide, write: `updateProduct`/`deleteProduct` read the product through `lockActiveProductsStock(tenantId, [id], tx)`; `price_changed` is recorded only when the price differs from the locked row; `product_deleted` carries `stock = 0` (feature `sync-events`).
+- AD-019: The ads service is simulated by `apps/ads-mock`, a standalone Express 5 app with in-memory state keyed by `(tenantId, sku)` and no shared code. `POST /updates` (1–100 items) applies only versions greater than the stored one and answers `{ applied, ignored }`; `X-Api-Key` guards every route; a global sliding 1 s window answers 429 + `Retry-After`; with probability `FAILURE_RATE` it answers 500, holds `TIMEOUT_DELAY_MS` then 500, or applies then 500. Rate limit and failures apply to `POST /updates` only (feature `ads-mock`).
 
 ## Handoff
 
-Feature `sync-events` (Part B PR 1 of 4) implemented on branch `feat/sync-events`, uncommitted pending review. Next: `ads-mock`, `sync-worker`, `sync-status` per `docs/prompts/05-sync.md`.
+Feature `sync-events` committed on `feat/sync-events`. Feature `ads-mock` (Part B PR 2 of 4) implemented on `feat/ads-mock`, uncommitted pending review. Next: `sync-worker`, `sync-status` per `docs/prompts/05-sync.md`.
