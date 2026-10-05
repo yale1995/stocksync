@@ -6,6 +6,7 @@ import { healthRouter } from "./http/controllers/health.controller.js";
 import { productsRouter } from "./http/controllers/products.controller.js";
 import { salesRouter } from "./http/controllers/sales.controller.js";
 import { stockMovementsRouter } from "./http/controllers/stock-movements.controller.js";
+import { syncRouter } from "./http/controllers/sync.controller.js";
 import {
 	errorHandler,
 	notFoundHandler,
@@ -23,6 +24,7 @@ export function createApp(): Express {
 	app.use("/products/:id", stockMovementsRouter);
 	app.use("/products", productsRouter);
 	app.use("/sales", salesRouter);
+	app.use("/sync", syncRouter);
 
 	app.use(notFoundHandler);
 	app.use(errorHandler);
