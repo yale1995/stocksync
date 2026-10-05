@@ -5,6 +5,7 @@
 		"dev": "turbo run dev",
 		"build": "turbo run build",
 		"test": "turbo run test",
+		"typecheck": "turbo run typecheck",
 		"test:watch": "turbo run test:watch",
 		"db:up": "turbo run db:up",
 		"db:down": "turbo run db:down",

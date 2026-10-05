@@ -10,9 +10,13 @@
 			"cache": false,
 			"persistent": true
 		},
+		"typecheck": {
+			"dependsOn": ["^build"]
+		},
 		"test": {
 			"dependsOn": ["^build"],
-			"cache": false
+			"cache": false,
+			"passThroughEnv": ["DATABASE_URL"]
 		},
 		"test:watch": {
 			"cache": false,
