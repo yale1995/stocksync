@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 11,
+  "next_id": 14,
   "lessons": [
     {
       "id": "L-001",
@@ -188,6 +188,60 @@
       ],
       "created": "2026-10-05T04:18:30Z",
       "last_seen": "2026-10-05T04:18:30Z"
+    },
+    {
+      "id": "L-011",
+      "key": "surviving_mutant::when a spec requires a for update read in several flows give each flow its own lock holding test hold the row lock change the row then release so swapping any one read for an unlocked one fails",
+      "text": "When a spec requires a FOR UPDATE read in several flows, give each flow its own lock-holding test (hold the row lock, change the row, then release) so swapping any one read for an unlocked one fails",
+      "signal": "surviving_mutant",
+      "scope": "concurrency",
+      "status": "candidate",
+      "features": [
+        "sync-events"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M14 products.service.ts:104 (concurrency)"
+      ],
+      "created": "2026-10-05T15:51:13Z",
+      "last_seen": "2026-10-05T15:51:13Z"
+    },
+    {
+      "id": "L-012",
+      "key": "surviving_mutant::when a spec names an index shape columns or a partial where assert its definition from pg indexes instead of relying on inspection",
+      "text": "When a spec names an index shape (columns or a partial WHERE), assert its definition from pg_indexes instead of relying on inspection",
+      "signal": "surviving_mutant",
+      "scope": "schema",
+      "status": "candidate",
+      "features": [
+        "sync-events"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "D8 0004_dashing_tiger_shark.sql:28 (schema)"
+      ],
+      "created": "2026-10-05T15:51:13Z",
+      "last_seen": "2026-10-05T15:51:13Z"
+    },
+    {
+      "id": "L-013",
+      "key": "surviving_mutant::assert every column default the spec lists on a freshly inserted row including timestamp defaults such as now",
+      "text": "Assert every column default the spec lists on a freshly inserted row, including timestamp defaults such as now()",
+      "signal": "surviving_mutant",
+      "scope": "schema",
+      "status": "candidate",
+      "features": [
+        "sync-events"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "D12 0004_dashing_tiger_shark.sql:14 (schema)"
+      ],
+      "created": "2026-10-05T15:51:13Z",
+      "last_seen": "2026-10-05T15:51:13Z"
     }
   ]
 }

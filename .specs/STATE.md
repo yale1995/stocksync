@@ -17,7 +17,10 @@
 - AD-013: `POST /sales` idempotency is write-first. The sale (with `Idempotency-Key` and the sha256 of its canonical items) is inserted before any stock change under `unique (tenant_id, idempotency_key)`. A `23505` is replayed (201 + `Idempotent-Replayed: true`) when the stored hash matches, or answered 409 when it differs. Only successful sales keep their key. This is the one deliberate exception to the "check before writing" rule (feature `sales`).
 - AD-014: Sales and sale items are immutable (no `updated_at`/`deleted_at`). Only the unit price is frozen; `sku`/`name` come from the product join, the total is derived, and sale reads ignore `deleted_at` on products and users (feature `sales`).
 - AD-015: `stock_movements.created_at` defaults to `clock_timestamp()`, not `now()`, so the history order per product matches the order the locked changes were applied (feature `sales`).
+- AD-016: Product changes relevant to the ads service are written to a Postgres outbox, `sync_events`, in the same transaction as the change (no dual write, no extra infrastructure). Only the worker updates a row afterwards; rows are never deleted, so the table has `updated_at` and no `deleted_at` (feature `sync-events`).
+- AD-017: `sync_events.version` is one table-wide `GENERATED ALWAYS AS IDENTITY` sequence, not a per-product counter or a timestamp. The event is always inserted after the product row is locked (or inserted), so the later change to a product always has the greater version (feature `sync-events`).
+- AD-018: Every flow that records a sync event follows lock, decide, write: `updateProduct`/`deleteProduct` read the product through `lockActiveProductsStock(tenantId, [id], tx)`; `price_changed` is recorded only when the price differs from the locked row; `product_deleted` carries `stock = 0` (feature `sync-events`).
 
 ## Handoff
 
-Feature `sales` done on branch `feat/sales`.
+Feature `sync-events` (Part B PR 1 of 4) implemented on branch `feat/sync-events`, uncommitted pending review. Next: `ads-mock`, `sync-worker`, `sync-status` per `docs/prompts/05-sync.md`.
