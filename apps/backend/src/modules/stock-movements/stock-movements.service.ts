@@ -15,53 +15,100 @@ import type {
 
 const PRODUCT_NOT_FOUND = "Product not found";
 
-export type StockChange = {
-	tenantId: string;
+export type StockChangeItem = {
 	productId: string;
-	userId: string;
 	direction: StockMovementDirection;
 	quantity: number;
-	source: Exclude<StockMovementSource, "initial">;
 	reason: string | null;
 };
 
+export type StockChanges = {
+	tenantId: string;
+	userId: string;
+	source: Exclude<StockMovementSource, "initial">;
+	saleId: string | null;
+	notFoundMessage: string;
+	items: StockChangeItem[];
+};
+
+export type AppliedStockChange = {
+	productId: string;
+	quantity: number;
+	movementId: string;
+	priceCents: number;
+};
+
+type LockedProduct = { sku: string; stock: number };
+
+function nextStock(product: LockedProduct, item: StockChangeItem): number {
+	return item.direction === "in"
+		? product.stock + item.quantity
+		: product.stock - item.quantity;
+}
+
+function insufficientStockMessage(
+	shortages: { product: LockedProduct; item: StockChangeItem }[],
+): string {
+	const details = shortages.map(
+		({ product, item }) =>
+			`${product.sku} (available: ${product.stock}, requested: ${item.quantity})`,
+	);
+	return `Insufficient stock for ${details.join(", ")}`;
+}
+
 // The only path that changes the stock of an existing product. Runs inside the
 // caller's transaction so sales and the Part B sync event commit atomically
-// with the stock and its movement.
-export async function applyStockChange(
+// with the stock and its movements. Items are processed in productId order,
+// the same order the rows are locked in.
+export async function applyStockChanges(
 	tx: Transaction,
-	change: StockChange,
-): Promise<string> {
-	const product = await productsRepository.lockActiveProductStock(
-		change.tenantId,
-		change.productId,
+	{ tenantId, userId, source, saleId, notFoundMessage, items }: StockChanges,
+): Promise<AppliedStockChange[]> {
+	// Postgres returns uuids in lowercase whatever case the caller sent.
+	const sorted = items
+		.map((item) => ({ ...item, productId: item.productId.toLowerCase() }))
+		.toSorted((a, b) => (a.productId < b.productId ? -1 : 1));
+
+	const locked = await productsRepository.lockActiveProductsStock(
+		tenantId,
+		sorted.map((item) => item.productId),
 		tx,
 	);
-	if (!product) {
-		throw new NotFoundError(PRODUCT_NOT_FOUND);
+	const productsById = new Map(locked.map((product) => [product.id, product]));
+	const changes = sorted.map((item) => {
+		const product = productsById.get(item.productId);
+		if (!product) throw new NotFoundError(notFoundMessage);
+		return { item, product, stockAfter: nextStock(product, item) };
+	});
+
+	const shortages = changes.filter((change) => change.stockAfter < 0);
+	if (shortages.length > 0) {
+		throw new ConflictError(insufficientStockMessage(shortages));
 	}
-
-	const stockAfter =
-		change.direction === "in"
-			? product.stock + change.quantity
-			: product.stock - change.quantity;
-
-	if (stockAfter < 0) {
-		throw new ConflictError("Insufficient stock");
-	}
-
-	if (stockAfter > MAX_STOCK) {
+	if (changes.some((change) => change.stockAfter > MAX_STOCK)) {
 		throw new ConflictError(`Stock cannot exceed ${MAX_STOCK}`);
 	}
 
-	await productsRepository.updateProductStock(
-		change.tenantId,
-		change.productId,
-		stockAfter,
-		tx,
-	);
-
-	return repository.insertStockMovement({ ...change, stockAfter }, tx);
+	const applied: AppliedStockChange[] = [];
+	for (const { item, product, stockAfter } of changes) {
+		await productsRepository.updateProductStock(
+			tenantId,
+			product.id,
+			stockAfter,
+			tx,
+		);
+		const movementId = await repository.insertStockMovement(
+			{ ...item, tenantId, userId, source, saleId, stockAfter },
+			tx,
+		);
+		applied.push({
+			productId: product.id,
+			quantity: item.quantity,
+			movementId,
+			priceCents: product.priceCents,
+		});
+	}
+	return applied;
 }
 
 // The product row was inserted in the same transaction, so there is nothing to
@@ -97,14 +144,20 @@ export function createStockAdjustment(
 	input: CreateStockAdjustmentInput,
 ): Promise<StockMovement> {
 	return db.transaction(async (tx) => {
-		const id = await applyStockChange(tx, {
-			...input,
+		const [applied] = await applyStockChanges(tx, {
 			tenantId,
-			productId,
 			userId,
 			source: "adjustment",
+			saleId: null,
+			notFoundMessage: PRODUCT_NOT_FOUND,
+			items: [{ ...input, productId }],
 		});
-		const movement = await repository.findStockMovementById(tenantId, id, tx);
+		if (!applied) throw new Error("Stock adjustment applied no change");
+		const movement = await repository.findStockMovementById(
+			tenantId,
+			applied.movementId,
+			tx,
+		);
 		if (!movement) throw new Error("Created stock movement not found");
 		return movement;
 	});

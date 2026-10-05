@@ -12,8 +12,12 @@
 - AD-008: A malformed uuid in a path param returns 404 `NOT_FOUND`, not 400; resources of another tenant also return 404 (feature `products`).
 - AD-009: `stock_movements` is an append-only ledger (no `updated_at`/`deleted_at`; corrections are opposite adjustments). For every product the sum of movements (`in` − `out`) and the latest `stock_after` equal `products.stock`; product creation always records an `initial` movement (feature `stock-movements`).
 - AD-010: A movement has separate `direction` (`in`/`out`) and `source` (`initial`/`adjustment`/`sale`) columns with an always-positive quantity (`0` only for `initial`), kept coherent by CHECK constraints (feature `stock-movements`).
-- AD-011: `applyStockChange(tx, …)` in the stock-movements service is the only path that changes an existing product's stock: it locks the product row `FOR UPDATE`, rejects insufficient stock or stock above 1,000,000 with 409, updates the stock and inserts the movement in the caller's transaction (feature `stock-movements`).
+- AD-011 (superseded by AD-012): `applyStockChange(tx, …)` in the stock-movements service is the only path that changes an existing product's stock: it locks the product row `FOR UPDATE`, rejects insufficient stock or stock above 1,000,000 with 409, updates the stock and inserts the movement in the caller's transaction (feature `stock-movements`).
+- AD-012: `applyStockChanges(tx, { tenantId, userId, source, saleId, notFoundMessage, items })` in the stock-movements service is the only path that changes an existing product's stock. It locks every product in one `SELECT … ORDER BY id FOR UPDATE` (deadlock-free lock order), throws 404 with the caller's message if any is missing, one 409 `Insufficient stock for SKU (available: N, requested: M), …` listing every short item in `productId` order, 409 above 1,000,000, then updates the stock and inserts each movement in the caller's transaction (feature `sales`).
+- AD-013: `POST /sales` idempotency is write-first. The sale (with `Idempotency-Key` and the sha256 of its canonical items) is inserted before any stock change under `unique (tenant_id, idempotency_key)`. A `23505` is replayed (201 + `Idempotent-Replayed: true`) when the stored hash matches, or answered 409 when it differs. Only successful sales keep their key. This is the one deliberate exception to the "check before writing" rule (feature `sales`).
+- AD-014: Sales and sale items are immutable (no `updated_at`/`deleted_at`). Only the unit price is frozen; `sku`/`name` come from the product join, the total is derived, and sale reads ignore `deleted_at` on products and users (feature `sales`).
+- AD-015: `stock_movements.created_at` defaults to `clock_timestamp()`, not `now()`, so the history order per product matches the order the locked changes were applied (feature `sales`).
 
 ## Handoff
 
-Feature `stock-movements` done on branch `feat/stock-movements`.
+Feature `sales` done on branch `feat/sales`.

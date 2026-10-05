@@ -5,6 +5,7 @@ import {
 	eq,
 	gt,
 	ilike,
+	inArray,
 	isNull,
 	or,
 	type SQL,
@@ -88,17 +89,24 @@ export async function updateProduct(
 	return product;
 }
 
-export async function lockActiveProductStock(
+// Postgres locks the rows as the sorted result is emitted, so every caller
+// acquires the locks in id order and two transactions cannot deadlock.
+export function lockActiveProductsStock(
 	tenantId: string,
-	id: string,
+	ids: string[],
 	executor: Executor = db,
 ) {
-	const [product] = await executor
-		.select({ id: products.id, stock: products.stock })
+	return executor
+		.select({
+			id: products.id,
+			sku: products.sku,
+			stock: products.stock,
+			priceCents: products.priceCents,
+		})
 		.from(products)
-		.where(and(isActiveInTenant(tenantId), eq(products.id, id)))
+		.where(and(isActiveInTenant(tenantId), inArray(products.id, ids)))
+		.orderBy(asc(products.id))
 		.for("update");
-	return product;
 }
 
 export async function updateProductStock(

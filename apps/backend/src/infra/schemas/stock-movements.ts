@@ -11,6 +11,7 @@ import {
 	uuid,
 } from "drizzle-orm/pg-core";
 import { products } from "./products.js";
+import { sales } from "./sales.js";
 import { tenants } from "./tenants.js";
 import { users } from "./users.js";
 
@@ -46,7 +47,13 @@ export const stockMovements = pgTable(
 		stockAfter: integer().notNull(),
 		reason: text(),
 		userId: uuid().notNull(),
-		createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		saleId: uuid(),
+		// clock_timestamp(), not now(): now() is the transaction start, and a
+		// transaction that waited on the product lock would sort before the
+		// movement it waited for.
+		createdAt: timestamp({ withTimezone: true })
+			.notNull()
+			.default(sql`clock_timestamp()`),
 	},
 	(table) => [
 		foreignKey({
@@ -58,6 +65,11 @@ export const stockMovements = pgTable(
 			name: "stock_movements_user_fk",
 			columns: [table.tenantId, table.userId],
 			foreignColumns: [users.tenantId, users.id],
+		}),
+		foreignKey({
+			name: "stock_movements_sale_fk",
+			columns: [table.tenantId, table.saleId],
+			foreignColumns: [sales.tenantId, sales.id],
 		}),
 		index("stock_movements_history_idx").on(
 			table.tenantId,
@@ -84,6 +96,10 @@ export const stockMovements = pgTable(
 		check(
 			"stock_movements_reason_only_for_adjustments",
 			sql`(${table.source} = 'adjustment') = (${table.reason} IS NOT NULL)`,
+		),
+		check(
+			"stock_movements_sale_id_only_for_sales",
+			sql`(${table.source} = 'sale') = (${table.saleId} IS NOT NULL)`,
 		),
 	],
 );

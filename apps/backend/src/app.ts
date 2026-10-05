@@ -6,6 +6,7 @@ import { env } from "./infra/env.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { healthRouter } from "./modules/health/health.routes.js";
 import { productsRouter } from "./modules/products/products.routes.js";
+import { salesRouter } from "./modules/sales/sales.routes.js";
 import { stockMovementsRouter } from "./modules/stock-movements/stock-movements.routes.js";
 
 export function createApp(): Express {
@@ -18,6 +19,7 @@ export function createApp(): Express {
 	app.use("/auth", authRouter);
 	app.use("/products/:id", stockMovementsRouter);
 	app.use("/products", productsRouter);
+	app.use("/sales", salesRouter);
 
 	app.use(notFoundHandler);
 	app.use(errorHandler);

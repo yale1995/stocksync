@@ -69,6 +69,9 @@ describe("database constraints", () => {
 		});
 	}
 
+	// No sale row exists with this id: CHECK constraints run before the FK.
+	const saleId = "0190a8e2-0000-7000-8000-000000000000";
+
 	it.each([
 		[
 			"an initial movement going out",
@@ -77,8 +80,18 @@ describe("database constraints", () => {
 		],
 		[
 			"a sale movement going in",
-			{ source: "sale", direction: "in", reason: null },
+			{ source: "sale", direction: "in", reason: null, saleId },
 			"stock_movements_sale_is_out",
+		],
+		[
+			"a sale movement without a sale_id",
+			{ source: "sale", direction: "out", reason: null },
+			"stock_movements_sale_id_only_for_sales",
+		],
+		[
+			"an adjustment with a sale_id",
+			{ saleId },
+			"stock_movements_sale_id_only_for_sales",
 		],
 		[
 			"an adjustment with quantity 0",
@@ -278,6 +291,7 @@ describe("POST /products/:id/stock-adjustments", () => {
 				stockAfter: expectedStock,
 				source: "adjustment",
 				reason: "Physical count",
+				saleId: null,
 				createdAt: created?.createdAt.toISOString(),
 				user: { id: admin.id, email: "admin@acme.test" },
 			});
@@ -297,7 +311,10 @@ describe("POST /products/:id/stock-adjustments", () => {
 
 		expect(response.status).toBe(409);
 		expect(response.body).toEqual({
-			error: { code: "CONFLICT", message: "Insufficient stock" },
+			error: {
+				code: "CONFLICT",
+				message: "Insufficient stock for CAM-P (available: 25, requested: 26)",
+			},
 		});
 		expect((await findProduct("Acme", "CAM-P")).stock).toBe(25);
 		expect(await movementsOf(camP.id)).toHaveLength(1);
@@ -531,6 +548,7 @@ describe("GET /products/:id/stock-movements", () => {
 			stockAfter: 25,
 			source: "initial",
 			reason: null,
+			saleId: null,
 			createdAt: initial?.createdAt.toISOString(),
 			user: { id: admin.id, email: "admin@acme.test" },
 		});
