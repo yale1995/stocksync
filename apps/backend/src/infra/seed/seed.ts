@@ -3,6 +3,7 @@ import type { Executor } from "../db.js";
 import { hashPassword } from "../password.js";
 import { products } from "../schemas/products.js";
 import { stockMovements } from "../schemas/stock-movements.js";
+import { syncEvents } from "../schemas/sync-events.js";
 import { tenants } from "../schemas/tenants.js";
 import { type UserRole, users } from "../schemas/users.js";
 
@@ -139,6 +140,15 @@ async function createProductIfMissing(
 			source: "initial",
 			quantity: product.stock,
 			stockAfter: product.stock,
+		});
+
+		await tx.insert(syncEvents).values({
+			tenantId,
+			productId: created.id,
+			trigger: "product_created",
+			sku: product.sku,
+			stock: product.stock,
+			priceCents: product.priceCents,
 		});
 	});
 }
