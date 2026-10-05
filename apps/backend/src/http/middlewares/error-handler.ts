@@ -1,5 +1,9 @@
 import type { ErrorRequestHandler, RequestHandler } from "express";
-import { AppError, InternalServerError, NotFoundError } from "./errors.js";
+import {
+	AppError,
+	InternalServerError,
+	NotFoundError,
+} from "../../infra/errors.js";
 
 export const notFoundHandler: RequestHandler = (req) => {
 	throw new NotFoundError(`Route ${req.method} ${req.path} not found`);

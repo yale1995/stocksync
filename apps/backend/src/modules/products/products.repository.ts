@@ -10,13 +10,13 @@ import {
 	or,
 	type SQL,
 } from "drizzle-orm";
-import { db, type Executor } from "../../infra/db.js";
-import { products } from "../../infra/schemas/products.js";
 import type {
 	CreateProductInput,
 	ListProductsQuery,
 	UpdateProductInput,
-} from "./products.validation.js";
+} from "../../http/controllers/products.validation.js";
+import { db, type Executor } from "../../infra/db.js";
+import { products } from "../../infra/schemas/products.js";
 
 const productColumns = {
 	id: products.id,

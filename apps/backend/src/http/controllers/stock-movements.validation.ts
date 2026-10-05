@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { stockMovementDirection } from "../../infra/schemas/stock-movements.js";
-import { MAX_STOCK } from "../products/products.validation.js";
+import { MAX_STOCK } from "./products.validation.js";
 
 export const createStockAdjustmentSchema = z.object({
 	direction: z.enum(stockMovementDirection.enumValues),

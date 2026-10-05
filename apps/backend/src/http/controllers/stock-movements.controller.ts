@@ -1,12 +1,12 @@
 import { type Request, Router } from "express";
-import { formatZodIssues, ValidationError } from "../../http/errors.js";
-import { requireAuth } from "../../http/require-auth.js";
-import { requireRole } from "../../http/require-role.js";
-import { parseProductId } from "../products/products.routes.js";
+import { formatZodIssues, ValidationError } from "../../infra/errors.js";
 import {
 	createStockAdjustment,
 	listProductStockMovements,
-} from "./stock-movements.service.js";
+} from "../../modules/stock-movements/stock-movements.service.js";
+import { requireAuth } from "../middlewares/require-auth.js";
+import { requireRole } from "../middlewares/require-role.js";
+import { parseProductId } from "./products.controller.js";
 import {
 	createStockAdjustmentSchema,
 	listStockMovementsQuerySchema,

@@ -1,9 +1,12 @@
 import { type CookieOptions, Router } from "express";
-import { formatZodIssues, ValidationError } from "../../http/errors.js";
-import { ACCESS_TOKEN_COOKIE, requireAuth } from "../../http/require-auth.js";
 import { env } from "../../infra/env.js";
+import { formatZodIssues, ValidationError } from "../../infra/errors.js";
 import { ACCESS_TOKEN_TTL_SECONDS } from "../../infra/jwt.js";
-import { getCurrentUser, login } from "./auth.service.js";
+import { getCurrentUser, login } from "../../modules/auth/auth.service.js";
+import {
+	ACCESS_TOKEN_COOKIE,
+	requireAuth,
+} from "../middlewares/require-auth.js";
 import { loginSchema } from "./auth.validation.js";
 
 const cookieOptions: CookieOptions = {

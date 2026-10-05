@@ -2,14 +2,14 @@ import express from "express";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { createApp } from "../app.js";
-import { errorHandler } from "./error-handler.js";
+import { createApp } from "../../app.js";
 import {
 	ConflictError,
 	formatZodIssues,
 	NotFoundError,
 	ValidationError,
-} from "./errors.js";
+} from "../../infra/errors.js";
+import { errorHandler } from "./error-handler.js";
 
 const bodySchema = z.object({
 	name: z.string(),

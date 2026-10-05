@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { formatZodIssues, ValidationError } from "../../http/errors.js";
-import { requireAuth } from "../../http/require-auth.js";
-import { createSale } from "./sales.service.js";
+import { formatZodIssues, ValidationError } from "../../infra/errors.js";
+import { createSale } from "../../modules/sales/sales.service.js";
+import { requireAuth } from "../middlewares/require-auth.js";
 import { createSaleSchema, idempotencyKeySchema } from "./sales.validation.js";
 
 export const salesRouter = Router();
