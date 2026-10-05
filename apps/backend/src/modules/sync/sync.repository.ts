@@ -1,6 +1,20 @@
-import { and, asc, eq, inArray, lt, lte, or } from "drizzle-orm";
+import {
+	and,
+	asc,
+	count,
+	desc,
+	eq,
+	inArray,
+	lt,
+	lte,
+	max,
+	or,
+} from "drizzle-orm";
 import { db, type Executor } from "../../infra/db.js";
-import { syncEvents } from "../../infra/schemas/sync-events.js";
+import {
+	type SyncEventStatus,
+	syncEvents,
+} from "../../infra/schemas/sync-events.js";
 
 export type NewSyncEvent = Pick<
 	typeof syncEvents.$inferInsert,
@@ -154,4 +168,49 @@ export async function recordFailure(
 			...(nextAttemptAt ? { nextAttemptAt } : { status: "failed" as const }),
 		})
 		.where(and(eq(syncEvents.tenantId, tenantId), eq(syncEvents.id, id)));
+}
+
+export function countEventsByStatus(
+	tenantId: string,
+	executor: Executor = db,
+): Promise<{ status: SyncEventStatus; total: number }[]> {
+	return executor
+		.select({ status: syncEvents.status, total: count() })
+		.from(syncEvents)
+		.where(eq(syncEvents.tenantId, tenantId))
+		.groupBy(syncEvents.status);
+}
+
+export async function findLastSentAt(
+	tenantId: string,
+	executor: Executor = db,
+): Promise<Date | null> {
+	const [row] = await executor
+		.select({ lastSentAt: max(syncEvents.sentAt) })
+		.from(syncEvents)
+		.where(eq(syncEvents.tenantId, tenantId));
+	return row?.lastSentAt ?? null;
+}
+
+export function listFailedEvents(
+	tenantId: string,
+	limit: number,
+	executor: Executor = db,
+) {
+	return executor
+		.select({
+			id: syncEvents.id,
+			productId: syncEvents.productId,
+			sku: syncEvents.sku,
+			trigger: syncEvents.trigger,
+			attempts: syncEvents.attempts,
+			lastError: syncEvents.lastError,
+			updatedAt: syncEvents.updatedAt,
+		})
+		.from(syncEvents)
+		.where(
+			and(eq(syncEvents.tenantId, tenantId), eq(syncEvents.status, "failed")),
+		)
+		.orderBy(desc(syncEvents.updatedAt), desc(syncEvents.id))
+		.limit(limit);
 }
