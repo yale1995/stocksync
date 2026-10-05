@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 23,
+  "next_id": 25,
   "lessons": [
     {
       "id": "L-001",
@@ -303,17 +303,19 @@
       "text": "Test each ORDER BY key with fixtures where that key and the next one disagree",
       "signal": "surviving_mutant",
       "scope": "worker",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "sync-worker"
+        "sync-worker",
+        "sync-status"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "validation.md R3,R4,R5 (sync.repository.ts:33) (worker)"
+        "validation.md R3,R4,R5 (sync.repository.ts:33) (worker)",
+        "validation.md M18/M30/M31 (sync.repository.ts:214) (worker)"
       ],
       "created": "2026-10-05T17:51:58Z",
-      "last_seen": "2026-10-05T17:51:58Z"
+      "last_seen": "2026-10-05T19:12:00Z"
     },
     {
       "id": "L-018",
@@ -404,6 +406,42 @@
       ],
       "created": "2026-10-05T18:59:16Z",
       "last_seen": "2026-10-05T18:59:16Z"
+    },
+    {
+      "id": "L-023",
+      "key": "surviving_mutant::seed ordering tests so the spec s sort key runs against insertion id and version order or a query sorted by the wrong column passes",
+      "text": "Seed ordering tests so the spec's sort key runs against insertion, id and version order, or a query sorted by the wrong column passes",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "sync-status"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M18/M30/M31 (sync.repository.ts:214) (tests)"
+      ],
+      "created": "2026-10-05T19:11:54Z",
+      "last_seen": "2026-10-05T19:11:54Z"
+    },
+    {
+      "id": "L-024",
+      "key": "surviving_mutant::for tenant scoped routes send another tenant s id in query header and body and assert the token s tenant still wins",
+      "text": "For tenant-scoped routes, send another tenant's id in query, header and body and assert the token's tenant still wins",
+      "signal": "surviving_mutant",
+      "scope": "routes",
+      "status": "candidate",
+      "features": [
+        "sync-status"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M25-M27 (sync.controller.ts:8) (routes)"
+      ],
+      "created": "2026-10-05T19:11:54Z",
+      "last_seen": "2026-10-05T19:11:54Z"
     }
   ]
 }

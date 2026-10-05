@@ -20,6 +20,12 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: validation.md M22,M26 (0002_parallel_forgotten_one.sql:22-23) (schema) (+1 more)
 - last seen: 2026-10-05T04:18:30Z
 
+### L-017 - Test each ORDER BY key with fixtures where that key and the next one disagree
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `worker` · harmful: 0
+- features: sync-worker, sync-status
+- evidence: validation.md R3,R4,R5 (sync.repository.ts:33) (worker) (+1 more)
+- last seen: 2026-10-05T19:12:00Z
+
 ## Candidates (under observation - do NOT load as guidance yet)
 
 Seen once or not yet corroborated. Tracked, not trusted.
@@ -108,12 +114,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md R1,R2 (sync.repository.ts:35,59) (worker)
 - last seen: 2026-10-05T17:51:57Z
 
-### L-017 - Test each ORDER BY key with fixtures where that key and the next one disagree
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `worker` · harmful: 0
-- features: sync-worker
-- evidence: validation.md R3,R4,R5 (sync.repository.ts:33) (worker)
-- last seen: 2026-10-05T17:51:58Z
-
 ### L-018 - Test batch size limits with more due rows than the limit and assert which rows were claimed
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `worker` · harmful: 0
 - features: sync-worker
@@ -143,6 +143,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: sync-worker
 - evidence: LW8/LW16 apps/backend/src/modules/sync/sync.worker.ts:101 (tests)
 - last seen: 2026-10-05T18:59:16Z
+
+### L-023 - Seed ordering tests so the spec's sort key runs against insertion, id and version order, or a query sorted by the wrong column passes
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: sync-status
+- evidence: validation.md M18/M30/M31 (sync.repository.ts:214) (tests)
+- last seen: 2026-10-05T19:11:54Z
+
+### L-024 - For tenant-scoped routes, send another tenant's id in query, header and body and assert the token's tenant still wins
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: sync-status
+- evidence: validation.md M25-M27 (sync.controller.ts:8) (routes)
+- last seen: 2026-10-05T19:11:54Z
 
 ## Quarantined (failed when applied - ignore)
 
