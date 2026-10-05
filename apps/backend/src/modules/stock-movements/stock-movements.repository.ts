@@ -11,6 +11,7 @@ const movementColumns = {
 	stockAfter: stockMovements.stockAfter,
 	source: stockMovements.source,
 	reason: stockMovements.reason,
+	saleId: stockMovements.saleId,
 	createdAt: stockMovements.createdAt,
 	user: { id: users.id, email: users.email },
 };

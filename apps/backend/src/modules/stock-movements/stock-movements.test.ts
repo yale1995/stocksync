@@ -291,6 +291,7 @@ describe("POST /products/:id/stock-adjustments", () => {
 				stockAfter: expectedStock,
 				source: "adjustment",
 				reason: "Physical count",
+				saleId: null,
 				createdAt: created?.createdAt.toISOString(),
 				user: { id: admin.id, email: "admin@acme.test" },
 			});
@@ -547,6 +548,7 @@ describe("GET /products/:id/stock-movements", () => {
 			stockAfter: 25,
 			source: "initial",
 			reason: null,
+			saleId: null,
 			createdAt: initial?.createdAt.toISOString(),
 			user: { id: admin.id, email: "admin@acme.test" },
 		});

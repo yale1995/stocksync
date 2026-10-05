@@ -26,6 +26,7 @@ export type StockChanges = {
 	tenantId: string;
 	userId: string;
 	source: Exclude<StockMovementSource, "initial">;
+	saleId: string | null;
 	notFoundMessage: string;
 	items: StockChangeItem[];
 };
@@ -61,7 +62,7 @@ function insufficientStockMessage(
 // the same order the rows are locked in.
 export async function applyStockChanges(
 	tx: Transaction,
-	{ tenantId, userId, source, notFoundMessage, items }: StockChanges,
+	{ tenantId, userId, source, saleId, notFoundMessage, items }: StockChanges,
 ): Promise<AppliedStockChange[]> {
 	// Postgres returns uuids in lowercase whatever case the caller sent.
 	const sorted = items
@@ -97,7 +98,7 @@ export async function applyStockChanges(
 			tx,
 		);
 		const movementId = await repository.insertStockMovement(
-			{ ...item, tenantId, userId, source, stockAfter },
+			{ ...item, tenantId, userId, source, saleId, stockAfter },
 			tx,
 		);
 		applied.push({
@@ -147,6 +148,7 @@ export function createStockAdjustment(
 			tenantId,
 			userId,
 			source: "adjustment",
+			saleId: null,
 			notFoundMessage: PRODUCT_NOT_FOUND,
 			items: [{ ...input, productId }],
 		});
