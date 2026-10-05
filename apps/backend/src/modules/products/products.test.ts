@@ -2,6 +2,11 @@ import { and, eq } from "drizzle-orm";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../../app.js";
+import { errorResponseSchema } from "../../http/controllers/common.validation.js";
+import {
+	productListSchema,
+	productSchema,
+} from "../../http/controllers/products.validation.js";
 import { db } from "../../infra/db.js";
 import { signAccessToken } from "../../infra/jwt.js";
 import { products } from "../../infra/schemas/products.js";
@@ -120,6 +125,7 @@ describe("GET /products", () => {
 		const response = await list(acmeAdmin);
 
 		expect(response.status).toBe(200);
+		productListSchema.parse(response.body);
 		expect(response.body.meta).toEqual({ page: 1, limit: 20, total: 2 });
 		expect(skus(response)).toEqual(["BON-01", "CAM-P"]);
 		expect(Object.keys(response.body.data[1]).sort()).toEqual(productKeys);
@@ -371,6 +377,7 @@ describe("GET /products/:id", () => {
 			.set("Cookie", acmeAdmin);
 
 		expect(response.status).toBe(200);
+		productSchema.parse(response.body);
 		expect(response.body).toEqual({
 			id: camP.id,
 			sku: "CAM-P",
@@ -434,6 +441,7 @@ describe("GET /products/:id", () => {
 			.set("Cookie", acmeAdmin);
 
 		expect(response.status).toBe(404);
+		errorResponseSchema.parse(response.body);
 		expect(response.body).toEqual(notFoundBody);
 	});
 });
@@ -443,6 +451,7 @@ describe("POST /products", () => {
 		const response = await create(acmeAdmin, validProduct);
 
 		expect(response.status).toBe(201);
+		productSchema.parse(response.body);
 		expect(Object.keys(response.body).sort()).toEqual(productKeys);
 		expect(response.body).toMatchObject(validProduct);
 		const stored = await findProduct("Acme", "MUG-01");
@@ -517,6 +526,7 @@ describe("POST /products", () => {
 		const response = await create(acmeAdmin, { ...validProduct, sku: "CAM-P" });
 
 		expect(response.status).toBe(409);
+		errorResponseSchema.parse(response.body);
 		expect(response.body).toEqual({
 			error: {
 				code: "CONFLICT",
@@ -550,6 +560,7 @@ describe("POST /products", () => {
 		const response = await create(acmeOperator, validProduct);
 
 		expect(response.status).toBe(403);
+		errorResponseSchema.parse(response.body);
 		expect(response.body.error.code).toBe("FORBIDDEN");
 		const rows = await db
 			.select()
@@ -576,6 +587,7 @@ describe("POST /products", () => {
 		const response = await create(acmeAdmin, { ...validProduct, ...override });
 
 		expect(response.status).toBe(400);
+		errorResponseSchema.parse(response.body);
 		expect(response.body.error.code).toBe("VALIDATION_ERROR");
 	});
 
@@ -603,6 +615,7 @@ describe("PATCH /products/:id", () => {
 		});
 
 		expect(response.status).toBe(200);
+		productSchema.parse(response.body);
 		expect(Object.keys(response.body).sort()).toEqual(productKeys);
 		const after = await findProduct("Acme", "CAM-P");
 		expect(response.body).toEqual({
@@ -819,6 +832,7 @@ describe("authentication", () => {
 			.send(validProduct);
 
 		expect(response.status).toBe(401);
+		errorResponseSchema.parse(response.body);
 		expect(response.body).toEqual(unauthorizedBody);
 	});
 

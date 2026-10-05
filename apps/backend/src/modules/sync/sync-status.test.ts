@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../../app.js";
+import { syncStatusSchema } from "../../http/controllers/sync.validation.js";
 import { db } from "../../infra/db.js";
 import { signAccessToken } from "../../infra/jwt.js";
 import { hashPassword } from "../../infra/password.js";
@@ -121,6 +122,7 @@ describe("GET /sync/status", () => {
 
 		const response = await status(`access_token=${token}`).expect(200);
 
+		syncStatusSchema.parse(response.body);
 		expect(response.body).toEqual({
 			pending: 0,
 			sent: 0,
@@ -147,6 +149,7 @@ describe("GET /sync/status", () => {
 
 		const response = await status(acmeOperator).expect(200);
 
+		syncStatusSchema.parse(response.body);
 		expect(response.body).toMatchObject({
 			pending: 1,
 			sent: 3,
@@ -154,6 +157,16 @@ describe("GET /sync/status", () => {
 			superseded: 2,
 			lastSuccessfulSyncAt: "2026-10-05T12:00:30.000Z",
 		});
+	});
+
+	it("returns a failed event without lastError as null", async () => {
+		const camP = await productOf(acme, "CAM-P");
+		await insertEvents(camP, [{ status: "failed", attempts: 5 }]);
+
+		const response = await status(acmeAdmin).expect(200);
+
+		syncStatusSchema.parse(response.body);
+		expect(response.body.failedEvents[0].lastError).toBeNull();
 	});
 
 	// updated_at runs against the insertion order, as for an old event whose

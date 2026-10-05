@@ -3,6 +3,7 @@ import { and, asc, eq } from "drizzle-orm";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../../app.js";
+import { saleSchema } from "../../http/controllers/sales.validation.js";
 import { db } from "../../infra/db.js";
 import { signAccessToken } from "../../infra/jwt.js";
 import { products } from "../../infra/schemas/products.js";
@@ -117,6 +118,7 @@ describe("POST /sales", () => {
 		]);
 
 		expect(response.status).toBe(201);
+		saleSchema.parse(response.body);
 		expect(response.headers["idempotent-replayed"]).toBeUndefined();
 		const [stored] = await db.select().from(sales);
 		expect(response.body).toEqual({
@@ -504,6 +506,7 @@ describe("idempotency", () => {
 		expect(first.status).toBe(201);
 		expect(replay.status).toBe(201);
 		expect(replay.headers["idempotent-replayed"]).toBe("true");
+		saleSchema.parse(replay.body);
 		expect(replay.body).toEqual(first.body);
 		expect(await stockOf("Acme", "CAM-P")).toBe(23);
 		expect(await db.select().from(sales)).toHaveLength(1);

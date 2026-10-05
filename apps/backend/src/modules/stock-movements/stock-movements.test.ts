@@ -2,6 +2,10 @@ import { and, eq } from "drizzle-orm";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../../app.js";
+import {
+	stockMovementListSchema,
+	stockMovementSchema,
+} from "../../http/controllers/stock-movements.validation.js";
 import { db } from "../../infra/db.js";
 import { signAccessToken } from "../../infra/jwt.js";
 import { products } from "../../infra/schemas/products.js";
@@ -282,6 +286,7 @@ describe("POST /products/:id/stock-adjustments", () => {
 			});
 
 			expect(response.status).toBe(201);
+			stockMovementSchema.parse(response.body);
 			const stored = await movementsOf(camP.id);
 			const created = stored.find((row) => row.id === response.body.id);
 			expect(response.body).toEqual({
@@ -511,6 +516,7 @@ describe("GET /products/:id/stock-movements", () => {
 		const response = await history(acmeAdmin, camP.id);
 
 		expect(response.status).toBe(200);
+		stockMovementListSchema.parse(response.body);
 		expect(response.body.meta).toEqual({ page: 1, limit: 20, total: 4 });
 		expect(
 			response.body.data.map(

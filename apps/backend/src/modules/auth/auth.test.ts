@@ -4,6 +4,7 @@ import { SignJWT } from "jose";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../app.js";
+import { currentUserSchema } from "../../http/controllers/auth.validation.js";
 import { db } from "../../infra/db.js";
 import { env } from "../../infra/env.js";
 import { signAccessToken } from "../../infra/jwt.js";
@@ -85,6 +86,7 @@ describe("POST /auth/login", () => {
 		const response = await login(acmeAdmin);
 
 		expect(response.status).toBe(200);
+		currentUserSchema.parse(response.body);
 		expect(response.body).toEqual({
 			id: user.id,
 			email: "admin@acme.test",
@@ -207,6 +209,7 @@ describe("GET /auth/me", () => {
 			.set("Cookie", `access_token=${accessTokenFrom(loginResponse)}`);
 
 		expect(response.status).toBe(200);
+		currentUserSchema.parse(response.body);
 		expect(response.body).toEqual(loginResponse.body);
 	});
 
