@@ -33,6 +33,8 @@
 - AD-029: After login the app follows `redirect` only when it is a same-origin path (starts with `/`, not `//`); anything else goes to `/products` (feature `frontend-auth`).
 - AD-030: The frontend is light only: Tailwind's `dark:` variant is bound to a `.dark` class that is never set, so shadcn's dark classes do not follow the OS setting (feature `frontend-auth`).
 
+- AD-031: Product list filters live only in the URL, in TanStack Router's JSON search format (`?search=cam&outOfStock=true&page=2`). A Zod `validateSearch` falls back to defaults for invalid values (and reads a numeric `search` as text), and `stripSearchParams({ page: 1 })` keeps the default page out of links. Any filter change resets `page` to 1. The debounced search input follows the URL except while a keystroke is pending (feature `frontend-products`).
+
 ## Handoff
 
-Part C: `frontend-setup` is committed on `feat/frontend-setup`. `frontend-auth` (2 of 5) is verified PASS and uncommitted on `feat/frontend-auth`, which is stacked on `feat/frontend-setup`. Next: commit it after the user's review, then `frontend-products` on `feat/frontend-products`. Plan: `docs/prompts/06-frontend.md`.
+Part C: `frontend-setup` and `frontend-auth` are committed (stacked branches). `frontend-products` (3 of 5) is verified PASS and uncommitted on `feat/frontend-products`. Next: commit it after the user's review, then `frontend-sales`. Plan: `docs/prompts/06-frontend.md`.
