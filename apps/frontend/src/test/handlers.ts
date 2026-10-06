@@ -14,3 +14,12 @@ export function signedOut() {
 		),
 	);
 }
+
+// Pages that are only a backdrop for another test still load their data.
+export function emptyProducts() {
+	server.use(
+		http.get("/api/v1/products", () =>
+			HttpResponse.json({ data: [], meta: { page: 1, limit: 20, total: 0 } }),
+		),
+	);
+}

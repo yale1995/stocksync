@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { server } from "./server";
 
@@ -14,6 +14,10 @@ Element.prototype.hasPointerCapture ??= () => false;
 Element.prototype.setPointerCapture ??= () => {};
 Element.prototype.releasePointerCapture ??= () => {};
 Element.prototype.scrollIntoView ??= () => {};
+
+// The first render in a test file loads the route chunk and boots the router;
+// on CI that has taken over the 1 s default (1.2 s observed).
+configure({ asyncUtilTimeout: 3000 });
 
 const nodeFetch = globalThis.fetch;
 

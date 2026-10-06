@@ -1,8 +1,8 @@
 import { screen, waitFor } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { currentUser } from "@/test/fixtures";
-import { signedIn, signedOut } from "@/test/handlers";
+import { emptyProducts, signedIn, signedOut } from "@/test/handlers";
 import { renderApp } from "@/test/render";
 import { server } from "@/test/server";
 
@@ -31,6 +31,10 @@ async function fillAndSubmit(
 	if (password) await user.type(screen.getByLabelText("Password"), password);
 	await user.click(submit);
 }
+
+beforeEach(() => {
+	emptyProducts();
+});
 
 describe("login page", () => {
 	it("has labelled email and password inputs and a Log in button", async () => {
