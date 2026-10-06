@@ -3,6 +3,12 @@ import { cleanup } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { server } from "./server";
 
+// jsdom lacks the pointer-capture and scrolling APIs Radix Select calls.
+Element.prototype.hasPointerCapture ??= () => false;
+Element.prototype.setPointerCapture ??= () => {};
+Element.prototype.releasePointerCapture ??= () => {};
+Element.prototype.scrollIntoView ??= () => {};
+
 const nodeFetch = globalThis.fetch;
 
 beforeAll(() => {
