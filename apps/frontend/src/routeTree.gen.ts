@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as HealthRouteImport } from './routes/health'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthProductsRouteImport } from './routes/_auth/products'
@@ -18,6 +19,11 @@ import { Route as AuthSalesNewRouteImport } from './routes/_auth/sales.new'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HealthRoute = HealthRouteImport.update({
+  id: '/health',
+  path: '/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -48,12 +54,14 @@ const AuthSalesNewRoute = AuthSalesNewRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
+  '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/products': typeof AuthProductsRoute
   '/sync': typeof AuthSyncRoute
   '/sales/new': typeof AuthSalesNewRoute
 }
 export interface FileRoutesByTo {
+  '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/products': typeof AuthProductsRoute
   '/sync': typeof AuthSyncRoute
@@ -63,6 +71,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
+  '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/_auth/products': typeof AuthProductsRoute
   '/_auth/sync': typeof AuthSyncRoute
@@ -71,12 +80,13 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/products' | '/sync' | '/sales/new'
+  fullPaths: '/' | '/health' | '/login' | '/products' | '/sync' | '/sales/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/products' | '/sync' | '/' | '/sales/new'
+  to: '/health' | '/login' | '/products' | '/sync' | '/' | '/sales/new'
   id:
     | '__root__'
     | '/_auth'
+    | '/health'
     | '/login'
     | '/_auth/products'
     | '/_auth/sync'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
+  HealthRoute: typeof HealthRoute
   LoginRoute: typeof LoginRoute
 }
 
@@ -96,6 +107,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -154,6 +172,7 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
+  HealthRoute: HealthRoute,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport

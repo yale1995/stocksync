@@ -198,6 +198,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md M18 (health.service.ts:67) HLT-12 (service)
 - last seen: 2026-10-06T16:59:25Z
 
+### L-032 - When a response type lets fields be null independently, cover each null field alone or narrow the type to the shapes the backend actually sends
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-tests` · harmful: 0
+- features: frontend-health
+- evidence: M13 apps/frontend/src/components/health/health-report.tsx:35 (frontend-tests)
+- last seen: 2026-10-06T17:53:35Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

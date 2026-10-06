@@ -26,6 +26,9 @@ export function setUnauthorizedHandler(handler: (() => void) | undefined) {
 	unauthorizedHandler = handler;
 }
 
+// Served at the API root, outside the versioned prefix in VITE_API_URL.
+export const HEALTH_URL = new URL("/health", env.VITE_API_URL).href;
+
 export const api = axios.create({
 	baseURL: env.VITE_API_URL,
 	// The session is an httpOnly cookie on the API's origin, which is not the
@@ -43,10 +46,12 @@ function toApiError(error: unknown) {
 	}
 
 	const { status, data } = error.response;
-	// A failed login is a wrong password, not an expired session.
+	// A failed login is a wrong password, not an expired session; the health
+	// check is public and never needs one.
 	const isLogin =
 		error.config?.method === "post" && error.config.url === "/auth/login";
-	if (status === 401 && !isLogin) unauthorizedHandler?.();
+	const isHealth = error.config?.url === HEALTH_URL;
+	if (status === 401 && !isLogin && !isHealth) unauthorizedHandler?.();
 
 	if (isApiErrorBody(data)) {
 		return new ApiError(status, data.error.code, data.error.message);
