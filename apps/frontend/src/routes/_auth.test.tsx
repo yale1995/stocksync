@@ -1,10 +1,14 @@
 import { act, screen, waitFor, within } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { meQuery } from "@/api/auth";
-import { signedIn, signedOut } from "@/test/handlers";
+import { emptyProducts, signedIn, signedOut } from "@/test/handlers";
 import { renderApp } from "@/test/render";
 import { server } from "@/test/server";
+
+beforeEach(() => {
+	emptyProducts();
+});
 
 describe("auth guard and layout", () => {
 	it("redirects a visitor without a session to login with the location", async () => {

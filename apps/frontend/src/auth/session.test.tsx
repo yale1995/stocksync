@@ -1,10 +1,10 @@
 import { screen, waitFor } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { meQuery } from "@/api/auth";
 import { apiFetch } from "@/api/client";
 import { currentUser, unauthorized } from "@/test/fixtures";
-import { signedIn, signedOut } from "@/test/handlers";
+import { emptyProducts, signedIn, signedOut } from "@/test/handlers";
 import { renderApp } from "@/test/render";
 import { server } from "@/test/server";
 
@@ -31,6 +31,10 @@ function requestProducts(app: ReturnType<typeof renderApp>, key: string) {
 		.fetchQuery({ queryKey: [key], queryFn: () => apiFetch("/products") })
 		.catch(() => undefined);
 }
+
+beforeEach(() => {
+	emptyProducts();
+});
 
 describe("session expiry", () => {
 	it("clears the cache and sends the user to login with the message and location", async () => {
