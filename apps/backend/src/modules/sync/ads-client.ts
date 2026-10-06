@@ -13,7 +13,11 @@ export type AdsResult =
 	| { kind: "error"; error: string };
 
 export interface AdsClient {
-	sendUpdates(tenantId: string, items: AdsItem[]): Promise<AdsResult>;
+	sendUpdates(
+		tenantId: string,
+		items: AdsItem[],
+		requestId: string,
+	): Promise<AdsResult>;
 }
 
 const DEFAULT_RETRY_AFTER_MS = 1000;
@@ -54,12 +58,16 @@ export function createHttpAdsClient({
 	const url = new URL("/updates", baseUrl);
 
 	return {
-		async sendUpdates(tenantId, items) {
+		async sendUpdates(tenantId, items, requestId) {
 			let response: Response;
 			try {
 				response = await fetch(url, {
 					method: "POST",
-					headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+					headers: {
+						"Content-Type": "application/json",
+						"X-Api-Key": apiKey,
+						"X-Request-Id": requestId,
+					},
 					body: JSON.stringify({ tenantId, items }),
 					signal: AbortSignal.timeout(timeoutMs),
 				});

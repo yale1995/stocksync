@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const envSchema = z.object({
+export const envSchema = z.object({
 	PORT: z.string().transform(Number).pipe(z.number().int().positive()),
 	DATABASE_URL: z.url(),
 	JWT_SECRET: z.string().min(32),
@@ -8,6 +8,9 @@ const envSchema = z.object({
 	NODE_ENV: z
 		.enum(["development", "test", "production"])
 		.default("development"),
+	LOG_LEVEL: z
+		.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
+		.default("info"),
 	ADS_API_URL: z.url(),
 	ADS_API_KEY: z.string().min(1),
 	SYNC_BATCH_SIZE: z.coerce.number().int().min(1).max(100).default(50),

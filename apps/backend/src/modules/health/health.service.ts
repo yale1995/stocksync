@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { env } from "../../infra/env.js";
+import { logger } from "../../infra/logger.js";
 import * as repository from "./health.repository.js";
 
 export const HEALTH_CHECK_TIMEOUT_MS = 1000;
@@ -64,7 +65,7 @@ export async function getHealth() {
 		);
 		return { status: "ok", server, database, sync } as const;
 	} catch (error) {
-		console.error("Health check failed:", error);
+		logger.error({ err: error }, "health check failed");
 		return {
 			status: "unavailable",
 			server,

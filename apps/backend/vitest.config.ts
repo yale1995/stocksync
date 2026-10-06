@@ -15,6 +15,7 @@ export default defineConfig({
 			JWT_SECRET: "test-jwt-secret-with-at-least-32-characters",
 			CORS_ORIGIN: "http://localhost:5173",
 			NODE_ENV: "test",
+			LOG_LEVEL: "silent",
 			ADS_API_URL: "http://localhost:4000",
 			ADS_API_KEY: "test-ads-api-key",
 			SYNC_BATCH_SIZE: "50",
