@@ -38,6 +38,8 @@
 - AD-032: The sale form keeps its lines and Idempotency-Key in one reducer (`use-sale-form.ts`): every change to the lines (pick, quantity, add, remove) generates a new `crypto.randomUUID()` key, a resubmit of unchanged lines reuses it, and a success resets the lines with a new key. A ref (not mutation state) blocks a second submit before React re-renders. A 409 or 404 invalidates `["products"]`, so each line's `GET /products/:id` query shows the current stock (feature `frontend-sales`).
 - AD-033: `ApiError` is registered as TanStack Query's `defaultError`, because every query and mutation goes through `apiFetch` (feature `frontend-sales`).
 
+- AD-034: `/sync` polls `GET /sync/status` every 5 s with `retry: false`: the poll is the retry, so a failed refresh shows its non-blocking warning ("Could not refresh. Showing data from <time>; retrying every 5 seconds.") at once, keeps the last data, and clears on the next success. Dates use `Intl` in the browser's time zone; tests pin `TZ=UTC` (feature `frontend-sync`).
+
 ## Handoff
 
-Part C: `frontend-setup`, `frontend-auth` and `frontend-products` are committed (stacked branches). `frontend-sales` (4 of 5) is verified PASS and uncommitted on `feat/frontend-sales`. Next: commit it after the user's review, then `frontend-sync` and the Impeccable finish review + `apps/frontend/DESIGN.md`. Plan: `docs/prompts/06-frontend.md`.
+Part C: `frontend-setup`, `frontend-auth`, `frontend-products` and `frontend-sales` are committed (stacked branches). `frontend-sync` (5 of 5) is verified PASS and uncommitted on `feat/frontend-sync`. Next: commit it after the user's review, then the Impeccable finish review (direction contract in `apps/frontend/.impeccable/surfaces/src.md`, captures in `apps/frontend/.impeccable/review/`) and `apps/frontend/DESIGN.md`. Plan: `docs/prompts/06-frontend.md`.
