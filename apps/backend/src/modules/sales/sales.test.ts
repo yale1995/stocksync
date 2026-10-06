@@ -47,7 +47,7 @@ type Item = { productId: string; quantity: number };
 
 function sell(cookie: string, items: Item[], key: string = randomUUID()) {
 	return request(createApp())
-		.post("/sales")
+		.post("/api/v1/sales")
 		.set("Cookie", cookie)
 		.set("Idempotency-Key", key)
 		.send({ items });
@@ -61,7 +61,7 @@ let bon: Awaited<ReturnType<typeof findProduct>>;
 // Goes through the adjustment endpoint so the ledger keeps explaining the stock.
 async function restock(productId: string, quantity: number) {
 	await request(createApp())
-		.post(`/products/${productId}/stock-adjustments`)
+		.post(`/api/v1/products/${productId}/stock-adjustments`)
 		.set("Cookie", acmeAdmin)
 		.send({ direction: "in", quantity, reason: "Restock" })
 		.expect(201);
@@ -215,7 +215,7 @@ describe("POST /sales", () => {
 		const globexAdmin = await findUser("admin@globex.test");
 
 		const response = await request(createApp())
-			.post("/sales")
+			.post("/api/v1/sales")
 			.set("Cookie", acmeOperator)
 			.set("Idempotency-Key", randomUUID())
 			.send({
@@ -234,7 +234,7 @@ describe("POST /sales", () => {
 		const before = await snapshot();
 
 		const noCookie = await request(createApp())
-			.post("/sales")
+			.post("/api/v1/sales")
 			.set("Idempotency-Key", randomUUID())
 			.send({ items: [{ productId: camP.id, quantity: 1 }] });
 		const invalid = await sell("access_token=invalid.token.value", [
@@ -389,7 +389,7 @@ describe("validation", () => {
 		const before = await snapshot();
 
 		const response = await request(createApp())
-			.post("/sales")
+			.post("/api/v1/sales")
 			.set("Cookie", acmeOperator)
 			.set("Idempotency-Key", randomUUID())
 			.send(body());
@@ -401,7 +401,7 @@ describe("validation", () => {
 
 	it("accepts 100 items past validation", async () => {
 		const response = await request(createApp())
-			.post("/sales")
+			.post("/api/v1/sales")
 			.set("Cookie", acmeOperator)
 			.set("Idempotency-Key", randomUUID())
 			.send({
@@ -423,7 +423,7 @@ describe("validation", () => {
 		async (_label, key) => {
 			const before = await snapshot();
 			const req = request(createApp())
-				.post("/sales")
+				.post("/api/v1/sales")
 				.set("Cookie", acmeOperator);
 			if (key !== undefined) req.set("Idempotency-Key", key);
 
@@ -454,7 +454,7 @@ describe("concurrency", () => {
 		expect(await stockOf("Acme", "BON-01")).toBe(0);
 		expect(await saleMovementsOf(bon.id)).toHaveLength(5);
 		const history = await request(createApp())
-			.get(`/products/${bon.id}/stock-movements`)
+			.get(`/api/v1/products/${bon.id}/stock-movements`)
 			.set("Cookie", acmeOperator);
 		expect(
 			history.body.data.map(
@@ -645,7 +645,7 @@ describe("idempotency", () => {
 		const items = [{ productId: camP.id, quantity: 2 }];
 		await sell(acmeOperator, items, key);
 		await request(createApp())
-			.patch(`/products/${camP.id}`)
+			.patch(`/api/v1/products/${camP.id}`)
 			.set("Cookie", acmeAdmin)
 			.send({ priceCents: 9999 })
 			.expect(200);
@@ -662,7 +662,7 @@ describe("idempotency", () => {
 		const items = [{ productId: camP.id, quantity: 1 }];
 		await sell(acmeOperator, items, key);
 		await request(createApp())
-			.delete(`/products/${camP.id}`)
+			.delete(`/api/v1/products/${camP.id}`)
 			.set("Cookie", acmeAdmin)
 			.expect(204);
 
@@ -691,7 +691,7 @@ describe("movement history", () => {
 		]);
 
 		const history = await request(createApp())
-			.get(`/products/${camP.id}/stock-movements`)
+			.get(`/api/v1/products/${camP.id}/stock-movements`)
 			.set("Cookie", acmeOperator);
 
 		expect(history.body.data[0]).toMatchObject({

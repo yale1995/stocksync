@@ -86,7 +86,9 @@ beforeEach(async () => {
 });
 
 function list(cookie: string, query = "") {
-	return request(createApp()).get(`/products${query}`).set("Cookie", cookie);
+	return request(createApp())
+		.get(`/api/v1/products${query}`)
+		.set("Cookie", cookie);
 }
 
 const validProduct = {
@@ -98,20 +100,22 @@ const validProduct = {
 
 function create(cookie: string, body: object) {
 	return request(createApp())
-		.post("/products")
+		.post("/api/v1/products")
 		.set("Cookie", cookie)
 		.send(body);
 }
 
 function patch(cookie: string, id: string, body: object) {
 	return request(createApp())
-		.patch(`/products/${id}`)
+		.patch(`/api/v1/products/${id}`)
 		.set("Cookie", cookie)
 		.send(body);
 }
 
 function remove(cookie: string, id: string) {
-	return request(createApp()).delete(`/products/${id}`).set("Cookie", cookie);
+	return request(createApp())
+		.delete(`/api/v1/products/${id}`)
+		.set("Cookie", cookie);
 }
 
 function skus(response: request.Response): string[] {
@@ -373,7 +377,7 @@ describe("GET /products/:id", () => {
 		const camP = await findProduct("Acme", "CAM-P");
 
 		const response = await request(createApp())
-			.get(`/products/${camP.id}`)
+			.get(`/api/v1/products/${camP.id}`)
 			.set("Cookie", acmeAdmin);
 
 		expect(response.status).toBe(200);
@@ -393,7 +397,7 @@ describe("GET /products/:id", () => {
 		const camP = await findProduct("Acme", "CAM-P");
 
 		const response = await request(createApp())
-			.get(`/products/${camP.id}`)
+			.get(`/api/v1/products/${camP.id}`)
 			.set("Cookie", acmeOperator);
 
 		expect(response.status).toBe(200);
@@ -404,7 +408,7 @@ describe("GET /products/:id", () => {
 		const globexCamP = await findProduct("Globex", "CAM-P");
 
 		const response = await request(createApp())
-			.get(`/products/${globexCamP.id}`)
+			.get(`/api/v1/products/${globexCamP.id}`)
 			.set("Cookie", acmeAdmin);
 
 		expect(response.status).toBe(404);
@@ -419,7 +423,7 @@ describe("GET /products/:id", () => {
 			.where(eq(products.id, camP.id));
 
 		const response = await request(createApp())
-			.get(`/products/${camP.id}`)
+			.get(`/api/v1/products/${camP.id}`)
 			.set("Cookie", acmeAdmin);
 
 		expect(response.status).toBe(404);
@@ -428,7 +432,7 @@ describe("GET /products/:id", () => {
 
 	it("returns 404 for an unknown id", async () => {
 		const response = await request(createApp())
-			.get("/products/0190a8e2-0000-7000-8000-000000000000")
+			.get("/api/v1/products/0190a8e2-0000-7000-8000-000000000000")
 			.set("Cookie", acmeAdmin);
 
 		expect(response.status).toBe(404);
@@ -437,7 +441,7 @@ describe("GET /products/:id", () => {
 
 	it("returns 404 for an id that is not a uuid", async () => {
 		const response = await request(createApp())
-			.get("/products/not-a-uuid")
+			.get("/api/v1/products/not-a-uuid")
 			.set("Cookie", acmeAdmin);
 
 		expect(response.status).toBe(404);
@@ -758,7 +762,7 @@ describe("DELETE /products/:id", () => {
 
 		const listed = await list(acmeAdmin);
 		const fetched = await request(createApp())
-			.get(`/products/${camP.id}`)
+			.get(`/api/v1/products/${camP.id}`)
 			.set("Cookie", acmeAdmin);
 		expect(skus(listed)).toEqual(["BON-01"]);
 		expect(listed.body.meta.total).toBe(1);
@@ -816,19 +820,19 @@ describe("DELETE /products/:id", () => {
 });
 
 describe("authentication", () => {
-	it.each([["/products"], ["/products/0190a8e2-0000-7000-8000-000000000000"]])(
-		"returns 401 on GET %s without a cookie",
-		async (path) => {
-			const response = await request(createApp()).get(path);
+	it.each([
+		["/api/v1/products"],
+		["/api/v1/products/0190a8e2-0000-7000-8000-000000000000"],
+	])("returns 401 on GET %s without a cookie", async (path) => {
+		const response = await request(createApp()).get(path);
 
-			expect(response.status).toBe(401);
-			expect(response.body).toEqual(unauthorizedBody);
-		},
-	);
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual(unauthorizedBody);
+	});
 
 	it("returns 401 on POST without a cookie", async () => {
 		const response = await request(createApp())
-			.post("/products")
+			.post("/api/v1/products")
 			.send(validProduct);
 
 		expect(response.status).toBe(401);
@@ -840,7 +844,7 @@ describe("authentication", () => {
 		const camP = await findProduct("Acme", "CAM-P");
 
 		const response = await request(createApp())
-			.patch(`/products/${camP.id}`)
+			.patch(`/api/v1/products/${camP.id}`)
 			.send({ name: "Renamed" });
 
 		expect(response.status).toBe(401);
@@ -850,7 +854,9 @@ describe("authentication", () => {
 	it("returns 401 on DELETE without a cookie", async () => {
 		const camP = await findProduct("Acme", "CAM-P");
 
-		const response = await request(createApp()).delete(`/products/${camP.id}`);
+		const response = await request(createApp()).delete(
+			`/api/v1/products/${camP.id}`,
+		);
 
 		expect(response.status).toBe(401);
 		expect(response.body).toEqual(unauthorizedBody);

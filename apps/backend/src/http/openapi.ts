@@ -7,6 +7,7 @@ import {
 	type ZodOpenApiResponsesObject,
 } from "zod-openapi";
 import { seedTenants } from "../infra/seed/seed.js";
+import { API_PREFIX } from "./api-prefix.js";
 import {
 	currentUserSchema,
 	loginSchema,
@@ -196,6 +197,7 @@ const products: Record<string, Record<string, ZodOpenApiOperationObject>> = {
 function apiPaths(showSeedUsers: boolean): ZodOpenApiObject["paths"] {
 	return {
 		"/health": {
+			servers: [{ url: "/" }],
 			get: {
 				tags: ["Health"],
 				summary: "Health check",
@@ -297,6 +299,7 @@ export function createOpenApiDocument({
 			version: "1.0.0",
 			description: apiDescription({ showSeedUsers }),
 		},
+		servers: [{ url: API_PREFIX }],
 		tags: tagDescriptions,
 		components: {
 			securitySchemes: {

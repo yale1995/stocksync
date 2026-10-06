@@ -1,8 +1,9 @@
 import express from "express";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { apiRoutes, createApp } from "../../app.js";
+import { apiRoutes, createApp, rootRoutes } from "../../app.js";
 import { seedTenants } from "../../infra/seed/seed.js";
+import { API_PREFIX } from "../api-prefix.js";
 
 type RouteLayer = {
 	route?: { path: string; methods: Record<string, boolean> };
@@ -13,8 +14,16 @@ function toOpenApiPath(mountPath: string, routePath: string): string {
 	return joined.replace(/:(\w+)/g, "{$1}");
 }
 
+const httpMethods = ["get", "post", "put", "patch", "delete"];
+
 function registeredOperations(): string[] {
-	return apiRoutes
+	return [
+		...rootRoutes,
+		...apiRoutes.map(({ path, router }) => ({
+			path: `${API_PREFIX}${path}`,
+			router,
+		})),
+	]
 		.flatMap(({ path, router }) =>
 			(router.stack as RouteLayer[]).flatMap((layer) =>
 				layer.route
@@ -28,11 +37,20 @@ function registeredOperations(): string[] {
 		.sort();
 }
 
-function documentedOperations(paths: Record<string, object>): string[] {
-	return Object.entries(paths)
-		.flatMap(([path, item]) =>
-			Object.keys(item).map((method) => `${method.toUpperCase()} ${path}`),
-		)
+type ServerList = { url: string }[];
+
+function documentedOperations(document: {
+	servers: ServerList;
+	paths: Record<string, { servers?: ServerList }>;
+}): string[] {
+	return Object.entries(document.paths)
+		.flatMap(([path, item]) => {
+			const server = (item.servers ?? document.servers)[0]?.url ?? "";
+			const base = server === "/" ? "" : server;
+			return Object.keys(item)
+				.filter((key) => httpMethods.includes(key))
+				.map((method) => `${method.toUpperCase()} ${base}${path}`);
+		})
 		.sort();
 }
 
@@ -48,9 +66,7 @@ describe("GET /openapi.json", () => {
 	it("documents every mounted route and nothing else", async () => {
 		const response = await request(createApp()).get("/openapi.json");
 
-		expect(documentedOperations(response.body.paths)).toEqual(
-			registeredOperations(),
-		);
+		expect(documentedOperations(response.body)).toEqual(registeredOperations());
 	});
 
 	it("leaves the docs routes out of the document", async () => {

@@ -209,7 +209,7 @@ describe("seed", () => {
 describe("initial movement on POST /products", () => {
 	function createProduct(stock: number) {
 		return request(createApp())
-			.post("/products")
+			.post("/api/v1/products")
 			.set("Cookie", acmeAdmin)
 			.send({ sku: "MUG-01", name: "Mug", priceCents: 1500, stock });
 	}
@@ -256,7 +256,7 @@ const unauthorizedBody = {
 
 function adjust(cookie: string, productId: string, body: object) {
 	return request(createApp())
-		.post(`/products/${productId}/stock-adjustments`)
+		.post(`/api/v1/products/${productId}/stock-adjustments`)
 		.set("Cookie", cookie)
 		.send(body);
 }
@@ -368,7 +368,7 @@ describe("POST /products/:id/stock-adjustments", () => {
 		const body = { direction: "in", quantity: 1, reason: "Anon" };
 
 		const noCookie = await request(createApp())
-			.post(`/products/${camP.id}/stock-adjustments`)
+			.post(`/api/v1/products/${camP.id}/stock-adjustments`)
 			.send(body);
 		const invalid = await adjust(
 			"access_token=invalid.token.value",
@@ -488,7 +488,7 @@ describe("POST /products/:id/stock-adjustments", () => {
 
 function history(cookie: string, productId: string, query = "") {
 	return request(createApp())
-		.get(`/products/${productId}/stock-movements${query}`)
+		.get(`/api/v1/products/${productId}/stock-movements${query}`)
 		.set("Cookie", cookie);
 }
 
@@ -695,7 +695,7 @@ describe("GET /products/:id/stock-movements", () => {
 		const camP = await findProduct("Acme", "CAM-P");
 
 		const noCookie = await request(createApp()).get(
-			`/products/${camP.id}/stock-movements`,
+			`/api/v1/products/${camP.id}/stock-movements`,
 		);
 		const invalid = await history("access_token=invalid.token.value", camP.id);
 

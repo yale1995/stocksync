@@ -89,6 +89,20 @@ describe("document", () => {
 		expect(document.openapi).toBe("3.1.0");
 	});
 
+	it("serves every path from /api/v1", () => {
+		expect(document.servers).toEqual([{ url: "/api/v1" }]);
+	});
+
+	it("serves /health from the root", () => {
+		expect(document.paths["/health"].servers).toEqual([{ url: "/" }]);
+	});
+
+	it("keeps the documented paths relative to the server", () => {
+		expect(
+			Object.keys(document.paths).filter((path) => path.startsWith("/api")),
+		).toEqual([]);
+	});
+
 	it("uses the introduction with the seeded users when asked", () => {
 		expect(document.info.description).toBe(
 			apiDescription({ showSeedUsers: true }),

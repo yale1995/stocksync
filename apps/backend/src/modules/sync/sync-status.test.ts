@@ -42,7 +42,7 @@ async function productOf(tenant: string, sku: string) {
 }
 
 function status(cookie: string) {
-	return request(createApp()).get("/sync/status").set("Cookie", cookie);
+	return request(createApp()).get("/api/v1/sync/status").set("Cookie", cookie);
 }
 
 type EventOverrides = Partial<typeof syncEvents.$inferInsert>;
@@ -264,7 +264,7 @@ describe("GET /sync/status", () => {
 		]);
 
 		const response = await request(createApp())
-			.get("/sync/status")
+			.get("/api/v1/sync/status")
 			.query({ tenantId: globex })
 			.set("Cookie", acmeAdmin)
 			.set("X-Tenant-Id", globex)
@@ -292,7 +292,7 @@ describe("GET /sync/status", () => {
 		["no cookie", undefined],
 		["an invalid token", "access_token=not-a-token"],
 	])("responds 401 with %s", async (_label, cookie) => {
-		const req = request(createApp()).get("/sync/status");
+		const req = request(createApp()).get("/api/v1/sync/status");
 		const response = await (cookie ? req.set("Cookie", cookie) : req).expect(
 			401,
 		);
