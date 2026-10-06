@@ -2,6 +2,10 @@ import { and, eq } from "drizzle-orm";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../../app.js";
+import {
+	stockMovementListSchema,
+	stockMovementSchema,
+} from "../../http/controllers/stock-movements.validation.js";
 import { db } from "../../infra/db.js";
 import { signAccessToken } from "../../infra/jwt.js";
 import { products } from "../../infra/schemas/products.js";
@@ -205,7 +209,7 @@ describe("seed", () => {
 describe("initial movement on POST /products", () => {
 	function createProduct(stock: number) {
 		return request(createApp())
-			.post("/products")
+			.post("/api/v1/products")
 			.set("Cookie", acmeAdmin)
 			.send({ sku: "MUG-01", name: "Mug", priceCents: 1500, stock });
 	}
@@ -252,7 +256,7 @@ const unauthorizedBody = {
 
 function adjust(cookie: string, productId: string, body: object) {
 	return request(createApp())
-		.post(`/products/${productId}/stock-adjustments`)
+		.post(`/api/v1/products/${productId}/stock-adjustments`)
 		.set("Cookie", cookie)
 		.send(body);
 }
@@ -282,6 +286,7 @@ describe("POST /products/:id/stock-adjustments", () => {
 			});
 
 			expect(response.status).toBe(201);
+			stockMovementSchema.parse(response.body);
 			const stored = await movementsOf(camP.id);
 			const created = stored.find((row) => row.id === response.body.id);
 			expect(response.body).toEqual({
@@ -363,7 +368,7 @@ describe("POST /products/:id/stock-adjustments", () => {
 		const body = { direction: "in", quantity: 1, reason: "Anon" };
 
 		const noCookie = await request(createApp())
-			.post(`/products/${camP.id}/stock-adjustments`)
+			.post(`/api/v1/products/${camP.id}/stock-adjustments`)
 			.send(body);
 		const invalid = await adjust(
 			"access_token=invalid.token.value",
@@ -483,7 +488,7 @@ describe("POST /products/:id/stock-adjustments", () => {
 
 function history(cookie: string, productId: string, query = "") {
 	return request(createApp())
-		.get(`/products/${productId}/stock-movements${query}`)
+		.get(`/api/v1/products/${productId}/stock-movements${query}`)
 		.set("Cookie", cookie);
 }
 
@@ -511,6 +516,7 @@ describe("GET /products/:id/stock-movements", () => {
 		const response = await history(acmeAdmin, camP.id);
 
 		expect(response.status).toBe(200);
+		stockMovementListSchema.parse(response.body);
 		expect(response.body.meta).toEqual({ page: 1, limit: 20, total: 4 });
 		expect(
 			response.body.data.map(
@@ -689,7 +695,7 @@ describe("GET /products/:id/stock-movements", () => {
 		const camP = await findProduct("Acme", "CAM-P");
 
 		const noCookie = await request(createApp()).get(
-			`/products/${camP.id}/stock-movements`,
+			`/api/v1/products/${camP.id}/stock-movements`,
 		);
 		const invalid = await history("access_token=invalid.token.value", camP.id);
 

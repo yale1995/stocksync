@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 25,
+  "next_id": 29,
   "lessons": [
     {
       "id": "L-001",
@@ -11,17 +11,19 @@
       "text": "When a spec enumerates a set of variants, cover every variant with a table-driven test asserting each listed value",
       "signal": "ac_gap",
       "scope": "http",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "errors"
+        "errors",
+        "api-versioning"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "ERR-02 / M5,M6 (http)"
+        "ERR-02 / M5,M6 (http)",
+        "validation.md G1 / S17 (app.test.ts:43-49, VER-02) (http)"
       ],
       "created": "2026-10-04T02:57:57Z",
-      "last_seen": "2026-10-04T02:57:57Z"
+      "last_seen": "2026-10-05T21:27:51Z"
     },
     {
       "id": "L-002",
@@ -442,6 +444,78 @@
       ],
       "created": "2026-10-05T19:11:54Z",
       "last_seen": "2026-10-05T19:11:54Z"
+    },
+    {
+      "id": "L-025",
+      "key": "surviving_mutant::when a schema must reject unknown keys unit test it with an extra key at every object level since generated docs show additionalproperties false either way",
+      "text": "When a schema must reject unknown keys, unit test it with an extra key at every object level, since generated docs show additionalProperties false either way",
+      "signal": "surviving_mutant",
+      "scope": "validation",
+      "status": "candidate",
+      "features": [
+        "api-docs"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M1-M5 (common.validation.ts:4, strictObject response schemas) (validation)"
+      ],
+      "created": "2026-10-05T20:23:05Z",
+      "last_seen": "2026-10-05T20:23:05Z"
+    },
+    {
+      "id": "L-026",
+      "key": "surviving_mutant::parse a real response for each nullable field in its null state not only the populated case",
+      "text": "Parse a real response for each nullable field in its null state, not only the populated case",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "api-docs"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M19,M22 (sync.validation.ts:13,21) (tests)"
+      ],
+      "created": "2026-10-05T20:23:05Z",
+      "last_seen": "2026-10-05T20:23:05Z"
+    },
+    {
+      "id": "L-027",
+      "key": "surviving_mutant::when behavior depends on node env or another env flag test the wiring in each environment value through the app not only the pure function it calls",
+      "text": "When behavior depends on NODE_ENV or another env flag, test the wiring in each environment value through the app, not only the pure function it calls",
+      "signal": "surviving_mutant",
+      "scope": "env",
+      "status": "candidate",
+      "features": [
+        "api-docs"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md D1 (docs.controller.ts:7, DOCS-22) (env)"
+      ],
+      "created": "2026-10-05T20:35:59Z",
+      "last_seen": "2026-10-05T20:35:59Z"
+    },
+    {
+      "id": "L-028",
+      "key": "surviving_mutant::when a regex asserts that a table cell has content exclude the delimiter so an empty cell fails",
+      "text": "When a regex asserts that a table cell has content, exclude the delimiter so an empty cell fails",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "api-docs"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md D11,D23 (openapi-description.test.ts:86, DOCS-25) (tests)"
+      ],
+      "created": "2026-10-05T20:35:59Z",
+      "last_seen": "2026-10-05T20:35:59Z"
     }
   ]
 }

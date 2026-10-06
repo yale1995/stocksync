@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { paginated, timestampSchema } from "./common.validation.js";
 
 export const MAX_STOCK = 1_000_000;
 
@@ -20,12 +21,15 @@ export const createProductSchema = z.object({ sku, name, priceCents, stock });
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 
+const atLeastOneField = "At least one field is required: name or priceCents";
+
 export const updateProductSchema = z
 	.object({ name: name.optional(), priceCents: priceCents.optional() })
 	.refine(
 		(input) => input.name !== undefined || input.priceCents !== undefined,
-		"At least one field is required: name or priceCents",
-	);
+		atLeastOneField,
+	)
+	.meta({ description: atLeastOneField });
 
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 
@@ -47,3 +51,19 @@ export const listProductsQuerySchema = z.object({
 });
 
 export type ListProductsQuery = z.infer<typeof listProductsQuerySchema>;
+
+export const productSchema = z
+	.strictObject({
+		id: z.uuid(),
+		sku: z.string(),
+		name: z.string(),
+		priceCents: z.int().min(0),
+		stock: z.int().min(0),
+		createdAt: timestampSchema,
+		updatedAt: timestampSchema,
+	})
+	.meta({ id: "Product" });
+
+export const productListSchema = paginated(productSchema).meta({
+	id: "ProductList",
+});

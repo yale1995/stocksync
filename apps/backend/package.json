@@ -20,6 +20,7 @@
 		"db:seed": "tsx --env-file-if-exists=.env src/infra/seed/run.ts"
 	},
 	"dependencies": {
+		"@scalar/express-api-reference": "^0.10.27",
 		"bcryptjs": "^3.0.3",
 		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.6",
@@ -27,7 +28,8 @@
 		"express": "^5.2.1",
 		"jose": "^6.2.12",
 		"pg": "^8.23.1",
-		"zod": "^4.6.5"
+		"zod": "^4.6.5",
+		"zod-openapi": "^6.0.2"
 	},
 	"devDependencies": {
 		"@types/cookie-parser": "^1.4.10",

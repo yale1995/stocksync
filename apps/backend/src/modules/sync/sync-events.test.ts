@@ -84,7 +84,7 @@ function app() {
 
 function sell(items: { productId: string; quantity: number }[]) {
 	return app()
-		.post("/sales")
+		.post("/api/v1/sales")
 		.set("Cookie", acmeOperator)
 		.set("Idempotency-Key", randomUUID())
 		.send({ items });
@@ -92,20 +92,20 @@ function sell(items: { productId: string; quantity: number }[]) {
 
 function adjust(productId: string, direction: "in" | "out", quantity: number) {
 	return app()
-		.post(`/products/${productId}/stock-adjustments`)
+		.post(`/api/v1/products/${productId}/stock-adjustments`)
 		.set("Cookie", acmeAdmin)
 		.send({ direction, quantity, reason: "Count" });
 }
 
 function patch(productId: string, body: object) {
 	return app()
-		.patch(`/products/${productId}`)
+		.patch(`/api/v1/products/${productId}`)
 		.set("Cookie", acmeAdmin)
 		.send(body);
 }
 
 function create(body: object) {
-	return app().post("/products").set("Cookie", acmeAdmin).send(body);
+	return app().post("/api/v1/products").set("Cookie", acmeAdmin).send(body);
 }
 
 let acmeAdmin: string;
@@ -299,7 +299,7 @@ describe("price changes", () => {
 describe("product deletion", () => {
 	it("records product_deleted with stock 0 and leaves the product stock unchanged", async () => {
 		await app()
-			.delete(`/products/${camP.id}`)
+			.delete(`/api/v1/products/${camP.id}`)
 			.set("Cookie", acmeAdmin)
 			.expect(204);
 
@@ -323,7 +323,7 @@ describe("product deletion", () => {
 
 	it("records no event for a missing product", async () => {
 		await app()
-			.delete(`/products/${randomUUID()}`)
+			.delete(`/api/v1/products/${randomUUID()}`)
 			.set("Cookie", acmeAdmin)
 			.expect(404);
 
@@ -337,7 +337,9 @@ describe("product deletion", () => {
 			await tx.execute(
 				sql`SELECT 1 FROM products WHERE id = ${camP.id} FOR UPDATE`,
 			);
-			deletion = app().delete(`/products/${camP.id}`).set("Cookie", acmeAdmin);
+			deletion = app()
+				.delete(`/api/v1/products/${camP.id}`)
+				.set("Cookie", acmeAdmin);
 			deletion.then(() => undefined);
 			await waitForLockWaiters(1);
 			await tx
@@ -361,7 +363,7 @@ describe("versions", () => {
 		await adjust(camP.id, "out", 1).expect(201);
 		await patch(camP.id, { priceCents: 5990 }).expect(200);
 		await app()
-			.delete(`/products/${camP.id}`)
+			.delete(`/api/v1/products/${camP.id}`)
 			.set("Cookie", acmeAdmin)
 			.expect(204);
 		const recreated = await create({

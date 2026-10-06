@@ -4,6 +4,7 @@ import { SignJWT } from "jose";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../app.js";
+import { currentUserSchema } from "../../http/controllers/auth.validation.js";
 import { db } from "../../infra/db.js";
 import { env } from "../../infra/env.js";
 import { signAccessToken } from "../../infra/jwt.js";
@@ -25,7 +26,7 @@ const unauthorizedBody = {
 };
 
 function login(credentials: { email: string; password: string }) {
-	return request(createApp()).post("/auth/login").send(credentials);
+	return request(createApp()).post("/api/v1/auth/login").send(credentials);
 }
 
 function setCookieHeader(response: request.Response): string {
@@ -85,6 +86,7 @@ describe("POST /auth/login", () => {
 		const response = await login(acmeAdmin);
 
 		expect(response.status).toBe(200);
+		currentUserSchema.parse(response.body);
 		expect(response.body).toEqual({
 			id: user.id,
 			email: "admin@acme.test",
@@ -113,7 +115,7 @@ describe("POST /auth/login", () => {
 
 		try {
 			const response = await request(createProductionApp())
-				.post("/auth/login")
+				.post("/api/v1/auth/login")
 				.send(acmeAdmin);
 
 			expect(response.status).toBe(200);
@@ -203,10 +205,11 @@ describe("GET /auth/me", () => {
 		const loginResponse = await login(acmeAdmin);
 
 		const response = await request(createApp())
-			.get("/auth/me")
+			.get("/api/v1/auth/me")
 			.set("Cookie", `access_token=${accessTokenFrom(loginResponse)}`);
 
 		expect(response.status).toBe(200);
+		currentUserSchema.parse(response.body);
 		expect(response.body).toEqual(loginResponse.body);
 	});
 
@@ -215,7 +218,7 @@ describe("GET /auth/me", () => {
 		const globex = await findTenant("Globex");
 
 		const response = await request(createApp())
-			.get("/auth/me")
+			.get("/api/v1/auth/me")
 			.set("Cookie", `access_token=${accessTokenFrom(loginResponse)}`);
 
 		expect(response.status).toBe(200);
@@ -229,7 +232,7 @@ describe("GET /auth/me", () => {
 		const globex = await findTenant("Globex");
 
 		const response = await request(createApp())
-			.get(`/auth/me?tenantId=${globex.id}`)
+			.get(`/api/v1/auth/me?tenantId=${globex.id}`)
 			.set("Cookie", `access_token=${accessTokenFrom(loginResponse)}`);
 
 		expect(response.status).toBe(200);
@@ -237,7 +240,7 @@ describe("GET /auth/me", () => {
 	});
 
 	it("returns 401 without a cookie", async () => {
-		const response = await request(createApp()).get("/auth/me");
+		const response = await request(createApp()).get("/api/v1/auth/me");
 
 		expect(response.status).toBe(401);
 		expect(response.body).toEqual(unauthorizedBody);
@@ -245,7 +248,7 @@ describe("GET /auth/me", () => {
 
 	it("returns 401 for an invalid token", async () => {
 		const response = await request(createApp())
-			.get("/auth/me")
+			.get("/api/v1/auth/me")
 			.set("Cookie", "access_token=invalid.token.value");
 
 		expect(response.status).toBe(401);
@@ -257,7 +260,7 @@ describe("GET /auth/me", () => {
 		const token = await expiredTokenFor(user);
 
 		const response = await request(createApp())
-			.get("/auth/me")
+			.get("/api/v1/auth/me")
 			.set("Cookie", `access_token=${token}`);
 
 		expect(response.status).toBe(401);
@@ -272,7 +275,7 @@ describe("GET /auth/me", () => {
 			.where(eq(users.email, acmeAdmin.email));
 
 		const response = await request(createApp())
-			.get("/auth/me")
+			.get("/api/v1/auth/me")
 			.set("Cookie", `access_token=${accessTokenFrom(loginResponse)}`);
 
 		expect(response.status).toBe(401);
@@ -287,7 +290,7 @@ describe("GET /auth/me", () => {
 			.where(eq(tenants.name, "Acme"));
 
 		const response = await request(createApp())
-			.get("/auth/me")
+			.get("/api/v1/auth/me")
 			.set("Cookie", `access_token=${accessTokenFrom(loginResponse)}`);
 
 		expect(response.status).toBe(401);
@@ -304,7 +307,7 @@ describe("GET /auth/me", () => {
 		});
 
 		const response = await request(createApp())
-			.get("/auth/me")
+			.get("/api/v1/auth/me")
 			.set("Cookie", `access_token=${token}`);
 
 		expect(response.status).toBe(401);
@@ -317,7 +320,7 @@ describe("POST /auth/logout", () => {
 		"access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax";
 
 	it("returns 204 and clears the cookie with the same options", async () => {
-		const response = await request(createApp()).post("/auth/logout");
+		const response = await request(createApp()).post("/api/v1/auth/logout");
 
 		expect(response.status).toBe(204);
 		expect(setCookieHeader(response)).toBe(clearedCookie);
@@ -327,7 +330,7 @@ describe("POST /auth/logout", () => {
 		const token = await expiredTokenFor(await findUser(acmeAdmin.email));
 
 		const response = await request(createApp())
-			.post("/auth/logout")
+			.post("/api/v1/auth/logout")
 			.set("Cookie", `access_token=${token}`);
 
 		expect(response.status).toBe(204);
@@ -336,12 +339,12 @@ describe("POST /auth/logout", () => {
 
 	it("ends the session for a client that keeps cookies", async () => {
 		const agent = request.agent(createApp());
-		await agent.post("/auth/login").send(acmeAdmin).expect(200);
-		await agent.get("/auth/me").expect(200);
+		await agent.post("/api/v1/auth/login").send(acmeAdmin).expect(200);
+		await agent.get("/api/v1/auth/me").expect(200);
 
-		await agent.post("/auth/logout").expect(204);
+		await agent.post("/api/v1/auth/logout").expect(204);
 
-		const response = await agent.get("/auth/me");
+		const response = await agent.get("/api/v1/auth/me");
 		expect(response.status).toBe(401);
 	});
 });
