@@ -1,7 +1,8 @@
 import { HttpResponse, http } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { apiUrl } from "@/test/api-url";
 import { server } from "@/test/server";
-import { ApiError, apiFetch, setUnauthorizedHandler } from "./client";
+import { ApiError, api, setUnauthorizedHandler } from "./client";
 
 afterEach(() => {
 	setUnauthorizedHandler(undefined);
@@ -16,25 +17,25 @@ async function catchApiError(promise: Promise<unknown>) {
 	return error as ApiError;
 }
 
-describe("apiFetch", () => {
-	it("sends the body as JSON to /api/v1 + path with extra headers", async () => {
+describe("api", () => {
+	it("sends the body as JSON to VITE_API_URL + path with extra headers", async () => {
 		let received: Request | undefined;
 		let receivedBody: unknown;
 		server.use(
-			http.post("/api/v1/sales", async ({ request }) => {
+			http.post(apiUrl("/sales"), async ({ request }) => {
 				received = request;
 				receivedBody = await request.json();
 				return HttpResponse.json({ ok: true }, { status: 201 });
 			}),
 		);
 
-		await apiFetch("/sales", {
-			method: "POST",
-			body: { items: [{ productId: "p1", quantity: 2 }] },
-			headers: { "Idempotency-Key": "key-1" },
-		});
+		await api.post(
+			"/sales",
+			{ items: [{ productId: "p1", quantity: 2 }] },
+			{ headers: { "Idempotency-Key": "key-1" } },
+		);
 
-		expect(new URL(received?.url ?? "").pathname).toBe("/api/v1/sales");
+		expect(received?.url).toBe("http://localhost:3333/api/v1/sales");
 		expect(received?.method).toBe("POST");
 		expect(received?.headers.get("Content-Type")).toBe("application/json");
 		expect(received?.headers.get("Idempotency-Key")).toBe("key-1");
@@ -43,33 +44,19 @@ describe("apiFetch", () => {
 
 	it("resolves with the parsed body of a 2xx JSON response", async () => {
 		server.use(
-			http.get("/api/v1/products/p1", () =>
+			http.get(apiUrl("/products/p1"), () =>
 				HttpResponse.json({ id: "p1", sku: "ABC-1" }),
 			),
 		);
 
-		await expect(apiFetch("/products/p1")).resolves.toEqual({
-			id: "p1",
-			sku: "ABC-1",
-		});
-	});
+		const { data } = await api.get("/products/p1");
 
-	it("resolves with undefined on 204", async () => {
-		server.use(
-			http.post(
-				"/api/v1/auth/logout",
-				() => new HttpResponse(null, { status: 204 }),
-			),
-		);
-
-		await expect(
-			apiFetch("/auth/logout", { method: "POST" }),
-		).resolves.toBeUndefined();
+		expect(data).toEqual({ id: "p1", sku: "ABC-1" });
 	});
 
 	it("throws ApiError with the API's status, code and message", async () => {
 		server.use(
-			http.post("/api/v1/sales", () =>
+			http.post(apiUrl("/sales"), () =>
 				HttpResponse.json(
 					{
 						error: {
@@ -83,9 +70,7 @@ describe("apiFetch", () => {
 			),
 		);
 
-		const error = await catchApiError(
-			apiFetch("/sales", { method: "POST", body: { items: [] } }),
-		);
+		const error = await catchApiError(api.post("/sales", { items: [] }));
 
 		expect(error.status).toBe(409);
 		expect(error.code).toBe("CONFLICT");
@@ -108,9 +93,9 @@ describe("apiFetch", () => {
 	])(
 		"throws a generic ApiError when the error response has $body",
 		async ({ status, respond }) => {
-			server.use(http.get("/api/v1/sync/status", respond));
+			server.use(http.get(apiUrl("/sync/status"), respond));
 
-			const error = await catchApiError(apiFetch("/sync/status"));
+			const error = await catchApiError(api.get("/sync/status"));
 
 			expect(error.status).toBe(status);
 			expect(error.code).toBe("UNKNOWN_ERROR");
@@ -119,9 +104,9 @@ describe("apiFetch", () => {
 	);
 
 	it("throws a network ApiError with status 0 when the request fails", async () => {
-		server.use(http.get("/api/v1/products", () => HttpResponse.error()));
+		server.use(http.get(apiUrl("/products"), () => HttpResponse.error()));
 
-		const error = await catchApiError(apiFetch("/products"));
+		const error = await catchApiError(api.get("/products"));
 
 		expect(error.status).toBe(0);
 		expect(error.code).toBe("NETWORK_ERROR");
@@ -134,7 +119,7 @@ describe("apiFetch", () => {
 		const onUnauthorized = vi.fn();
 		setUnauthorizedHandler(onUnauthorized);
 		server.use(
-			http.get("/api/v1/auth/me", () =>
+			http.get(apiUrl("/auth/me"), () =>
 				HttpResponse.json(
 					{
 						error: { code: "UNAUTHORIZED", message: "Authentication required" },
@@ -144,7 +129,7 @@ describe("apiFetch", () => {
 			),
 		);
 
-		const error = await catchApiError(apiFetch("/auth/me"));
+		const error = await catchApiError(api.get("/auth/me"));
 
 		expect(onUnauthorized).toHaveBeenCalledTimes(1);
 		expect(error.status).toBe(401);
@@ -161,12 +146,12 @@ describe("apiFetch", () => {
 			const onUnauthorized = vi.fn();
 			setUnauthorizedHandler(onUnauthorized);
 			server.use(
-				http.get("/api/v1/sync/status", () =>
+				http.get(apiUrl("/sync/status"), () =>
 					HttpResponse.json({ error: { code, message: "Nope" } }, { status }),
 				),
 			);
 
-			const error = await catchApiError(apiFetch("/sync/status"));
+			const error = await catchApiError(api.get("/sync/status"));
 
 			expect(onUnauthorized).not.toHaveBeenCalled();
 			expect(error.status).toBe(status);
@@ -178,7 +163,7 @@ describe("apiFetch", () => {
 		const onUnauthorized = vi.fn();
 		setUnauthorizedHandler(onUnauthorized);
 		server.use(
-			http.post("/api/v1/auth/login", () =>
+			http.post(apiUrl("/auth/login"), () =>
 				HttpResponse.json(
 					{
 						error: {
@@ -192,10 +177,7 @@ describe("apiFetch", () => {
 		);
 
 		const error = await catchApiError(
-			apiFetch("/auth/login", {
-				method: "POST",
-				body: { email: "a@b.test", password: "wrong" },
-			}),
+			api.post("/auth/login", { email: "a@b.test", password: "wrong" }),
 		);
 
 		expect(onUnauthorized).not.toHaveBeenCalled();
@@ -204,7 +186,7 @@ describe("apiFetch", () => {
 
 	it("still throws on a 401 when no unauthorized handler is registered", async () => {
 		server.use(
-			http.get("/api/v1/auth/me", () =>
+			http.get(apiUrl("/auth/me"), () =>
 				HttpResponse.json(
 					{
 						error: { code: "UNAUTHORIZED", message: "Authentication required" },
@@ -214,7 +196,7 @@ describe("apiFetch", () => {
 			),
 		);
 
-		const error = await catchApiError(apiFetch("/auth/me"));
+		const error = await catchApiError(api.get("/auth/me"));
 
 		expect(error.status).toBe(401);
 	});

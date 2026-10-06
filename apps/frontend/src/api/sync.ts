@@ -1,11 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
-import { apiFetch } from "./client";
+import { api } from "./client";
 import type { SyncStatus } from "./types";
 
 export const SYNC_POLL_INTERVAL_MS = 5_000;
 
-export function getSyncStatus() {
-	return apiFetch<SyncStatus>("/sync/status");
+export async function getSyncStatus() {
+	const { data } = await api.get<SyncStatus>("/sync/status");
+	return data;
 }
 
 export const syncStatusQuery = queryOptions({

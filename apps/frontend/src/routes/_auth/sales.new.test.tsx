@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import { describe, expect, it } from "vitest";
 import type { Sale } from "@/api/types";
+import { apiUrl } from "@/test/api-url";
 import { serveCatalog } from "@/test/catalog";
 import { makeProduct } from "@/test/fixtures";
 import { signedIn } from "@/test/handlers";
@@ -303,7 +304,7 @@ function serveSales(
 ) {
 	const requests: SaleRequest[] = [];
 	server.use(
-		http.post("/api/v1/sales", async ({ request }) => {
+		http.post(apiUrl("/sales"), async ({ request }) => {
 			const sale: SaleRequest = {
 				key: request.headers.get("Idempotency-Key"),
 				body: (await request.json()) as SaleRequest["body"],

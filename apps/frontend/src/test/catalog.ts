@@ -1,5 +1,6 @@
 import { HttpResponse, http } from "msw";
 import type { Product } from "@/api/types";
+import { apiUrl } from "./api-url";
 import { page } from "./fixtures";
 import { server } from "./server";
 
@@ -15,7 +16,7 @@ export function serveCatalog(products: Product[]) {
 	const detailRequests: string[] = [];
 
 	server.use(
-		http.get("/api/v1/products", ({ request }) => {
+		http.get(apiUrl("/products"), ({ request }) => {
 			const url = new URL(request.url);
 			listRequests.push(url);
 			const search = url.searchParams.get("search")?.toLowerCase() ?? "";
@@ -26,7 +27,7 @@ export function serveCatalog(products: Product[]) {
 			);
 			return HttpResponse.json(page(matches));
 		}),
-		http.get("/api/v1/products/:id", ({ params }) => {
+		http.get(apiUrl("/products/:id"), ({ params }) => {
 			const id = String(params.id);
 			detailRequests.push(id);
 			const product = catalog.get(id);

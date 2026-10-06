@@ -1,5 +1,5 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
-import { apiFetch } from "./client";
+import { api } from "./client";
 import type { Page, Product } from "./types";
 
 export const PAGE_SIZE = 20;
@@ -10,18 +10,21 @@ export interface ProductListParams {
 	page: number;
 }
 
-export function listProducts({ search, outOfStock, page }: ProductListParams) {
-	const params = new URLSearchParams({
-		page: String(page),
-		limit: String(PAGE_SIZE),
+export async function listProducts({
+	search,
+	outOfStock,
+	page,
+}: ProductListParams) {
+	const { data } = await api.get<Page<Product>>("/products", {
+		// Axios drops undefined params; an empty search means no filter too.
+		params: { page, limit: PAGE_SIZE, search: search || undefined, outOfStock },
 	});
-	if (search) params.set("search", search);
-	if (outOfStock !== undefined) params.set("outOfStock", String(outOfStock));
-	return apiFetch<Page<Product>>(`/products?${params}`);
+	return data;
 }
 
-export function getProduct(id: string) {
-	return apiFetch<Product>(`/products/${id}`);
+export async function getProduct(id: string) {
+	const { data } = await api.get<Product>(`/products/${id}`);
+	return data;
 }
 
 export const productKeys = {

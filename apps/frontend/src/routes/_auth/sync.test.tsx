@@ -2,6 +2,7 @@ import { act, screen, waitFor, within } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { FailedSyncEvent, SyncStatus } from "@/api/types";
+import { apiUrl } from "@/test/api-url";
 import { signedIn } from "@/test/handlers";
 import { renderApp } from "@/test/render";
 import { server } from "@/test/server";
@@ -40,7 +41,7 @@ const serverError = {
 function serveStatus(respond: (attempt: number) => SyncStatus | Response) {
 	let attempts = 0;
 	server.use(
-		http.get("/api/v1/sync/status", () => {
+		http.get(apiUrl("/sync/status"), () => {
 			attempts += 1;
 			const result = respond(attempts);
 			return result instanceof Response ? result : HttpResponse.json(result);
@@ -232,7 +233,7 @@ describe("sync status loading and errors", () => {
 		let release: () => void = () => {};
 		let requests = 0;
 		server.use(
-			http.get("/api/v1/sync/status", () => {
+			http.get(apiUrl("/sync/status"), () => {
 				requests += 1;
 				return new Promise<Response>((resolve) => {
 					release = () => resolve(HttpResponse.json(makeStatus()));
