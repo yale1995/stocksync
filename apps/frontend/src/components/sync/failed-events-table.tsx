@@ -30,11 +30,13 @@ export function FailedEventsTable({ events }: { events: FailedSyncEvent[] }) {
 
 	return (
 		<div className="overflow-hidden rounded-lg border bg-card shadow-xs">
+			{/* Below md each event stacks into a labelled row (SKU and attempts;
+			    trigger and time; error) so nothing is clipped on a phone. */}
 			<Table
 				aria-label="Failed updates"
-				className="[&_td:first-child]:pl-4 [&_td:last-child]:pr-4 [&_th]:text-muted-foreground [&_th:first-child]:pl-4 [&_th:last-child]:pr-4"
+				className="max-md:block md:[&_td:first-child]:pl-4 md:[&_td:last-child]:pr-4 [&_th]:text-muted-foreground [&_th:first-child]:pl-4 [&_th:last-child]:pr-4"
 			>
-				<TableHeader>
+				<TableHeader className="max-md:hidden">
 					<TableRow className="hover:bg-transparent">
 						<TableHead className="w-32">SKU</TableHead>
 						<TableHead className="w-40">Trigger</TableHead>
@@ -43,18 +45,25 @@ export function FailedEventsTable({ events }: { events: FailedSyncEvent[] }) {
 						<TableHead className="w-52 text-right">Updated at</TableHead>
 					</TableRow>
 				</TableHeader>
-				<TableBody>
+				<TableBody className="max-md:block">
 					{events.map((event) => (
-						<TableRow key={event.id}>
-							<TableCell className="text-muted-foreground">
+						<TableRow
+							key={event.id}
+							className="max-md:grid max-md:grid-cols-[1fr_auto] max-md:gap-x-3 max-md:gap-y-1 max-md:px-4 max-md:py-3"
+						>
+							<TableCell className="text-muted-foreground max-md:col-start-1 max-md:row-start-1 max-md:p-0 max-md:font-medium max-md:text-foreground">
 								{event.sku}
 							</TableCell>
-							<TableCell>{triggerLabels[event.trigger]}</TableCell>
-							<TableCell className="text-right">{event.attempts}</TableCell>
-							<TableCell className="whitespace-normal text-destructive">
+							<TableCell className="max-md:col-start-1 max-md:row-start-2 max-md:p-0 max-md:text-muted-foreground">
+								{triggerLabels[event.trigger]}
+							</TableCell>
+							<TableCell className="text-right tabular-nums max-md:col-start-2 max-md:row-start-1 max-md:p-0 max-md:before:content-['Attempts'] max-md:before:mr-1.5 max-md:before:text-muted-foreground">
+								{event.attempts}
+							</TableCell>
+							<TableCell className="whitespace-normal text-destructive max-md:col-span-2 max-md:row-start-3 max-md:p-0">
 								{event.lastError ?? "—"}
 							</TableCell>
-							<TableCell className="text-right text-muted-foreground">
+							<TableCell className="text-right text-muted-foreground tabular-nums max-md:col-start-2 max-md:row-start-2 max-md:p-0">
 								{formatDateTime(event.updatedAt)}
 							</TableCell>
 						</TableRow>

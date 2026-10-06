@@ -481,6 +481,8 @@ describe("new sale submit", () => {
 describe("new sale outcomes", () => {
 	const shortMessage =
 		"Insufficient stock for CAN-01 (available: 1, requested: 2)";
+	const twoShortMessage =
+		"Insufficient stock for CAN-01 (available: 1, requested: 2), CAM-P (available: 0, requested: 1)";
 
 	function apiError(status: number, code: string, message: string) {
 		return HttpResponse.json({ error: { code, message } }, { status });
@@ -578,7 +580,7 @@ describe("new sale outcomes", () => {
 	});
 
 	it("explains a 409, keeps the lines and shows the refreshed stock", async () => {
-		serveSales(() => apiError(409, "CONFLICT", shortMessage));
+		serveSales(() => apiError(409, "CONFLICT", twoShortMessage));
 		const { user, catalog } = await renderNewSale();
 		await pickProduct(user, 1, "Caneca");
 		const quantity = screen.getByRole("spinbutton", {
@@ -594,8 +596,19 @@ describe("new sale outcomes", () => {
 
 		const alert = await screen.findByRole("alert");
 		expect(alert).toHaveTextContent("Sale not registered");
-		expect(alert).toHaveTextContent(shortMessage);
+		expect(alert).toHaveTextContent("Insufficient stock for:");
+		expect(
+			within(within(alert).getByRole("list", { name: "Short items" }))
+				.getAllByRole("listitem")
+				.map((item) => item.textContent),
+		).toEqual([
+			"CAN-01 (available: 1, requested: 2)",
+			"CAM-P (available: 0, requested: 1)",
+		]);
 		expect(alert).toHaveTextContent("Nothing was changed.");
+		expect(alert).toHaveTextContent(
+			"Lower the highlighted quantities or remove those lines, then register again.",
+		);
 		expect(isAbove(alert, itemsCard())).toBe(true);
 		await waitFor(() =>
 			expect(catalog.detailRequests.length).toBeGreaterThan(detailsBefore),
@@ -627,6 +640,9 @@ describe("new sale outcomes", () => {
 		const alert = await screen.findByRole("alert");
 		expect(alert).toHaveTextContent("Sale not registered");
 		expect(alert).toHaveTextContent("One or more products were not found");
+		expect(alert).toHaveTextContent(
+			"Remove the lines marked as no longer available, then register again.",
+		);
 		expect(
 			await screen.findByText("This product is no longer available"),
 		).toBeVisible();

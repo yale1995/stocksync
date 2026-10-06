@@ -20,7 +20,7 @@ export function SyncSummary({ status }: { status: SyncStatus }) {
 						<dt className="text-sm text-muted-foreground">{label}</dt>
 						<dd
 							className={cn(
-								"text-2xl font-semibold tracking-tight",
+								"text-2xl font-semibold tracking-tight tabular-nums",
 								failure && "text-destructive",
 							)}
 						>
@@ -31,7 +31,7 @@ export function SyncSummary({ status }: { status: SyncStatus }) {
 			</div>
 			<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-t px-5 py-3 text-sm">
 				<dt className="text-muted-foreground">Last successful sync</dt>
-				<dd className="flex flex-wrap items-baseline gap-x-2">
+				<dd className="flex flex-wrap items-baseline gap-x-2 tabular-nums">
 					{status.lastSuccessfulSyncAt ? (
 						<>
 							<span className="font-medium">

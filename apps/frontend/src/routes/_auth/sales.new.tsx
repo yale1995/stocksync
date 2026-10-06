@@ -107,7 +107,10 @@ function NewSalePage() {
 				<div className="mt-4 flex items-center justify-end gap-4">
 					<p className="flex items-baseline gap-2">
 						<span className="text-sm text-muted-foreground">Total</span>
-						<span data-testid="sale-total" className="text-2xl font-semibold">
+						<span
+							data-testid="sale-total"
+							className="text-2xl font-semibold tabular-nums"
+						>
 							{formatCents(total)}
 						</span>
 					</p>

@@ -6,7 +6,7 @@ export function OutOfStockBadge({ className }: { className?: string }) {
 		<Badge
 			variant="outline"
 			className={cn(
-				"border-destructive/30 bg-destructive/5 text-destructive",
+				"border-destructive/30 bg-destructive/5 text-destructive-ink",
 				className,
 			)}
 		>

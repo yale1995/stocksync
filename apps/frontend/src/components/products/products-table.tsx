@@ -94,10 +94,10 @@ export function ProductsTable({
 							{product.sku}
 						</TableCell>
 						<TableCell className="font-medium">{product.name}</TableCell>
-						<TableCell className="text-right">
+						<TableCell className="text-right tabular-nums">
 							{formatCents(product.priceCents)}
 						</TableCell>
-						<TableCell className="text-right">
+						<TableCell className="text-right tabular-nums">
 							<StockCell stock={product.stock} />
 						</TableCell>
 					</TableRow>
