@@ -52,4 +52,44 @@ describe("product picker search", () => {
 		expect(searched("ca")).toBeDefined();
 		expect(searched("c")).toBeUndefined();
 	});
+
+	it("offers no stale results while a search is pending", async () => {
+		const bone = makeProduct({ sku: "BON-01", name: "Boné" });
+		const camiseta = makeProduct({ sku: "CAM-P", name: "Camiseta P" });
+		serveCatalog([bone, camiseta]);
+		const onPick = vi.fn();
+		render(
+			<QueryClientProvider
+				client={
+					new QueryClient({ defaultOptions: { queries: { retry: false } } })
+				}
+			>
+				<ProductPicker
+					lineNumber={1}
+					value={undefined}
+					excludedIds={[]}
+					onPick={onPick}
+				/>
+			</QueryClientProvider>,
+		);
+		fireEvent.click(screen.getByRole("combobox", { name: "Product, line 1" }));
+		const input = await screen.findByRole("combobox", {
+			name: "Search products",
+		});
+		await screen.findByRole("option", { name: /^Boné/ });
+
+		fireEvent.change(input, { target: { value: "cam" } });
+		fireEvent.keyDown(input, { key: "Enter" });
+
+		expect(onPick).not.toHaveBeenCalled();
+		expect(screen.queryByRole("option")).not.toBeInTheDocument();
+		expect(screen.getByText("Searching…")).toBeVisible();
+
+		await screen.findByRole("option", { name: /^Camiseta P/ });
+		expect(
+			screen.queryByRole("option", { name: /^Boné/ }),
+		).not.toBeInTheDocument();
+		fireEvent.keyDown(input, { key: "Enter" });
+		expect(onPick).toHaveBeenCalledWith(camiseta);
+	});
 });
