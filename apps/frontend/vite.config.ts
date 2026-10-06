@@ -7,7 +7,12 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
 	plugins: [
 		// Must run before the React plugin so it sees the generated route code.
-		tanstackRouter({ target: "react", autoCodeSplitting: true }),
+		tanstackRouter({
+			target: "react",
+			autoCodeSplitting: true,
+			// Route tests live next to their routes.
+			routeFileIgnorePattern: "\\.test\\.tsx?$",
+		}),
 		react(),
 		tailwindcss(),
 	],
@@ -23,5 +28,7 @@ export default defineConfig({
 		environment: "jsdom",
 		include: ["src/**/*.test.{ts,tsx}"],
 		setupFiles: ["src/test/setup.ts"],
+		// Dates render in the browser's time zone; tests pin one.
+		env: { TZ: "UTC" },
 	},
 });

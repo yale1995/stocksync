@@ -14,3 +14,19 @@ export function signedOut() {
 		),
 	);
 }
+
+// Pages that are only a backdrop for another test still load their data.
+export function emptySyncStatus() {
+	server.use(
+		http.get("/api/v1/sync/status", () =>
+			HttpResponse.json({
+				pending: 0,
+				sent: 0,
+				failed: 0,
+				superseded: 0,
+				lastSuccessfulSyncAt: null,
+				failedEvents: [],
+			}),
+		),
+	);
+}
