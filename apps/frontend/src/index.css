@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "@fontsource-variable/inter";
 
+/* Light theme only: shadcn's dark: classes must not follow the OS setting. */
+@custom-variant dark (&:is(.dark *));
+
 @theme inline {
 	--font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 	--radius-sm: calc(var(--radius) - 2px);
