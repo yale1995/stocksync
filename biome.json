@@ -7,7 +7,12 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**", "!apps/backend/src/infra/migrations", "!.specs"]
+		"includes": [
+			"**",
+			"!apps/backend/src/infra/migrations",
+			"!apps/frontend/src/routeTree.gen.ts",
+			"!.specs"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -22,6 +27,11 @@
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
 		}
 	},
 	"assist": {
