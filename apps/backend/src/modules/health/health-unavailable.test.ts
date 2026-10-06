@@ -2,6 +2,8 @@ import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../app.js";
 import { healthSchema } from "../../http/controllers/health.validation.js";
+import { logger } from "../../infra/logger.js";
+import { createMemoryLogger, LEVELS } from "../../infra/test/memory-logger.js";
 import * as repository from "./health.repository.js";
 
 vi.mock("./health.repository.js");
@@ -16,10 +18,10 @@ const down = {
 	latencyMs: null,
 };
 
-let consoleError: ReturnType<typeof vi.spyOn>;
+let loggerError: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
-	consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+	loggerError = vi.spyOn(logger, "error");
 	vi.mocked(repository.findDatabaseInfo).mockResolvedValue({
 		version: "18.0",
 		maxConnections: 100,
@@ -98,10 +100,30 @@ describe("GET /health with the database down", () => {
 
 		expectUnavailable(response);
 		expect(JSON.stringify(response.body)).not.toContain(SECRET);
-		expect(consoleError).toHaveBeenCalledWith(
-			expect.any(String),
-			expect.objectContaining({ message: SECRET }),
+		expect(loggerError).toHaveBeenCalledWith(
+			{ err: expect.objectContaining({ message: SECRET }) },
+			"health check failed",
 		);
+	});
+
+	it("writes the 503 access line at error", async () => {
+		vi.mocked(repository.ping).mockRejectedValue(new Error(SECRET));
+		const memory = createMemoryLogger();
+
+		const response = await request(createApp({ logger: memory.logger })).get(
+			"/health",
+		);
+		const line = await vi.waitFor(() => {
+			const found = memory.lines().find((l) => "responseTime" in l);
+			if (!found) throw new Error("no access line yet");
+			return found;
+		});
+
+		expect(response.status).toBe(503);
+		expect(line).toMatchObject({
+			level: LEVELS.error,
+			res: { statusCode: 503 },
+		});
 	});
 
 	it("answers 503 when a later query rejects", async () => {

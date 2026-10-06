@@ -1,6 +1,9 @@
+import { Writable } from "node:stream";
+import { pino } from "pino";
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { type AppOptions, createApp } from "./app.js";
+import { loggerOptions } from "./logger.js";
 
 const API_KEY = "test-api-key";
 const ACME = "0199a000-0000-7000-8000-000000000001";
@@ -411,5 +414,157 @@ describe("failures", () => {
 		const mock = setup({ failureRate: 1, random: sequence(0.99, 0.1) });
 
 		await mock.post({ tenantId: ACME, items: [item()] }).expect(500);
+	});
+});
+
+type LogLine = Record<string, unknown> & {
+	level: number;
+	msg?: string;
+	req?: { id?: string };
+};
+
+function memoryLogger() {
+	const chunks: string[] = [];
+	const logger = pino(
+		{ ...loggerOptions, level: "trace" },
+		new Writable({
+			write(chunk, _encoding, callback) {
+				chunks.push(chunk.toString());
+				callback();
+			},
+		}),
+	);
+	const lines = (): LogLine[] =>
+		chunks
+			.join("")
+			.split("\n")
+			.filter(Boolean)
+			.map((line) => JSON.parse(line));
+	// The access line is written on the response's finish event, which can
+	// land just after supertest resolves.
+	const accessLine = (id: string) =>
+		vi.waitFor(() => {
+			const line = lines().find((l) => "responseTime" in l && l.req?.id === id);
+			if (!line) throw new Error(`no access line for ${id}`);
+			return line;
+		});
+	return { logger, lines, accessLine, raw: () => chunks.join("") };
+}
+
+const REQUEST_ID = "0199a000-0000-4000-8000-0000000000aa";
+
+describe("logs", () => {
+	it("echoes the incoming request id and logs it on the access and outcome lines", async () => {
+		const memory = memoryLogger();
+		const mock = setup({ logger: memory.logger });
+
+		const response = await mock
+			.post({ tenantId: ACME, items: [item(), item({ sku: "BON-01" })] })
+			.set("X-Request-Id", REQUEST_ID);
+		const access = await memory.accessLine(REQUEST_ID);
+
+		expect(response.headers["x-request-id"]).toBe(REQUEST_ID);
+		expect(access).toMatchObject({
+			level: pino.levels.values.info,
+			msg: "POST /updates 200",
+			req: { id: REQUEST_ID, method: "POST", url: "/updates" },
+			res: { statusCode: 200 },
+		});
+		const outcome = memory.lines().filter((l) => l.msg === "updates handled");
+		expect(outcome).toEqual([
+			expect.objectContaining({
+				req: expect.objectContaining({ id: REQUEST_ID }),
+				tenantId: ACME,
+				items: 2,
+				outcome: "applied",
+				applied: 2,
+				ignored: 0,
+			}),
+		]);
+	});
+
+	it.each([
+		["error", sequence(0.1, 0.1)],
+		["timeout", sequence(0.1, 0.5)],
+		["apply-then-error", sequence(0.1, 0.9)],
+	] as const)(
+		"names the simulated %s on the outcome line",
+		async (mode, random) => {
+			const memory = memoryLogger();
+			const mock = setup({ logger: memory.logger, failureRate: 0.2, random });
+
+			const response = await mock
+				.post({ tenantId: ACME, items: [item()] })
+				.set("X-Request-Id", REQUEST_ID);
+			await memory.accessLine(REQUEST_ID);
+
+			expect(response.status).toBe(500);
+			const outcome = memory.lines().filter((l) => l.msg === "updates handled");
+			expect(outcome).toEqual([
+				expect.objectContaining({
+					level: pino.levels.values.warn,
+					req: expect.objectContaining({ id: REQUEST_ID }),
+					tenantId: ACME,
+					items: 1,
+					outcome: mode,
+				}),
+			]);
+			expect(outcome[0]).not.toHaveProperty("applied");
+		},
+	);
+
+	it.each([
+		["401", API_KEY.replace("test", "wrong"), 1000, 401],
+		["429", API_KEY, 1, 429],
+	] as const)(
+		"writes only the access line on a %s",
+		async (_case, key, rate, status) => {
+			const memory = memoryLogger();
+			const mock = setup({ logger: memory.logger, rateLimitPerSecond: rate });
+			if (status === 429) await mock.post({ tenantId: ACME, items: [item()] });
+
+			const response = await mock
+				.post({ tenantId: ACME, items: [item({ version: 2 })] }, key)
+				.set("X-Request-Id", REQUEST_ID);
+			await memory.accessLine(REQUEST_ID);
+
+			expect(response.status).toBe(status);
+			const lines = memory.lines().filter((l) => l.req?.id === REQUEST_ID);
+			expect(lines).toHaveLength(1);
+			expect(lines[0]).toMatchObject({
+				level: pino.levels.values.warn,
+				res: { statusCode: status },
+			});
+		},
+	);
+
+	it("generates an id when the incoming one is invalid", async () => {
+		const memory = memoryLogger();
+		const mock = setup({ logger: memory.logger });
+
+		const response = await mock
+			.post({ tenantId: ACME, items: [item()] })
+			.set("X-Request-Id", "not valid");
+
+		expect(response.headers["x-request-id"]).toMatch(
+			/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+		);
+		await memory.accessLine(response.headers["x-request-id"] ?? "");
+	});
+
+	it("never logs the API key", async () => {
+		const memory = memoryLogger();
+		const mock = setup({ logger: memory.logger });
+
+		await mock
+			.post({ tenantId: ACME, items: [item()] })
+			.set("X-Request-Id", REQUEST_ID);
+		await mock.ads(ACME, "wrong-key").set("X-Request-Id", "second");
+		await memory.accessLine(REQUEST_ID);
+		await memory.accessLine("second");
+
+		expect(memory.raw()).not.toContain(API_KEY);
+		expect(memory.raw()).not.toContain("wrong-key");
+		expect(memory.raw().toLowerCase()).not.toContain("x-api-key");
 	});
 });

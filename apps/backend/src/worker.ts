@@ -1,8 +1,11 @@
 import { setTimeout } from "node:timers/promises";
 import { pool } from "./infra/db.js";
 import { env } from "./infra/env.js";
+import { logger as rootLogger } from "./infra/logger.js";
 import { createHttpAdsClient } from "./modules/sync/ads-client.js";
 import { createSyncWorker } from "./modules/sync/sync.worker.js";
+
+const logger = rootLogger.child({ component: "sync-worker" });
 
 const controller = new AbortController();
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
@@ -33,13 +36,13 @@ const worker = createSyncWorker({
 		backoffMaxMs: env.SYNC_BACKOFF_MAX_MS,
 		pollIntervalMs: env.SYNC_POLL_INTERVAL_MS,
 	},
-	log: (message) => console.log(`[sync-worker] ${message}`),
+	logger,
 });
 
-console.log(`[sync-worker] started, sending to ${env.ADS_API_URL}`);
+logger.info({ adsApiUrl: env.ADS_API_URL }, "sync worker started");
 try {
 	await worker.run(controller.signal);
 } finally {
 	await pool.end();
-	console.log("[sync-worker] stopped");
+	logger.info("sync worker stopped");
 }

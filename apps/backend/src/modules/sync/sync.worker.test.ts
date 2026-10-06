@@ -6,6 +6,7 @@ import { syncEvents } from "../../infra/schemas/sync-events.js";
 import { tenants } from "../../infra/schemas/tenants.js";
 import { users } from "../../infra/schemas/users.js";
 import { seed } from "../../infra/seed/seed.js";
+import { createMemoryLogger, LEVELS } from "../../infra/test/memory-logger.js";
 import {
 	createProduct,
 	deleteProduct,
@@ -14,6 +15,9 @@ import {
 import { createStockAdjustment } from "../stock-movements/stock-movements.service.js";
 import type { AdsClient, AdsItem, AdsResult } from "./ads-client.js";
 import { createSyncWorker, type SyncWorkerConfig } from "./sync.worker.js";
+
+const UUID =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 const config: SyncWorkerConfig = {
 	batchSize: 50,
@@ -36,7 +40,12 @@ function fakeClock() {
 	};
 }
 
-type Call = { tenantId: string; items: AdsItem[]; at: number };
+type Call = {
+	tenantId: string;
+	items: AdsItem[];
+	requestId: string;
+	at: number;
+};
 
 function fakeClient(
 	clock: ReturnType<typeof fakeClock>,
@@ -44,8 +53,8 @@ function fakeClient(
 ) {
 	const calls: Call[] = [];
 	const client: AdsClient = {
-		async sendUpdates(tenantId, items) {
-			calls.push({ tenantId, items, at: clock.now().getTime() });
+		async sendUpdates(tenantId, items, requestId) {
+			calls.push({ tenantId, items, requestId, at: clock.now().getTime() });
 			return results.shift() ?? { kind: "ok" };
 		},
 	};
@@ -64,7 +73,7 @@ function setup({
 	const clock = fakeClock();
 	const { calls, client } = fakeClient(clock, results);
 	const sleeps: number[] = [];
-	const logs: string[] = [];
+	const memory = createMemoryLogger();
 	const worker = createSyncWorker({
 		client,
 		clock,
@@ -74,9 +83,9 @@ function setup({
 			clock.advance(ms);
 		},
 		config: { ...config, ...overrides },
-		log: (message) => logs.push(message),
+		logger: memory.logger,
 	});
-	return { worker, clock, calls, sleeps, logs };
+	return { worker, clock, calls, sleeps, lines: memory.lines };
 }
 
 async function tenantId(name: string) {
@@ -652,7 +661,34 @@ describe("token before the transaction", () => {
 });
 
 describe("log", () => {
-	it("names the superseded and sent events with the service's counts", async () => {
+	it("binds the tenant and the batch id sent as the request id to every line", async () => {
+		await discardSeedEvents();
+		const camP = await productOf(acme, "CAM-P");
+		await adjust(camP.id, 1);
+		await adjust(camP.id, 1);
+		const { worker, calls, lines } = setup();
+
+		await worker.tick();
+
+		const [call] = calls;
+		expect(call?.requestId).toMatch(UUID);
+		expect(lines()).toHaveLength(2);
+		for (const line of lines()) {
+			expect(line).toMatchObject({ tenantId: acme, batchId: call?.requestId });
+		}
+	});
+
+	it("uses a new batch id for each batch", async () => {
+		const { worker, calls } = setup();
+
+		await worker.tick();
+		await worker.tick();
+
+		expect(calls).toHaveLength(2);
+		expect(calls[0]?.requestId).not.toBe(calls[1]?.requestId);
+	});
+
+	it("logs the superseded and sent events with the service's counts", async () => {
 		await discardSeedEvents();
 		const camP = await productOf(acme, "CAM-P");
 		const bon = await productOf(acme, "BON-01");
@@ -663,40 +699,56 @@ describe("log", () => {
 		});
 		await adjust(camP.id, 1);
 		await adjust(camP.id, 1);
-		const meia = await createProduct(acme, acmeAdmin, {
-			sku: "MEIA-01",
-			name: "Meia",
-			priceCents: 1500,
-			stock: 7,
-		});
 		const [bonEvent] = (await eventsOf(bon.id)).slice(1);
 		const [older, newer] = (await eventsOf(camP.id)).slice(1);
-		const [meiaEvent] = await eventsOf(meia.id);
-		const { worker, logs } = setup({
-			results: [{ kind: "ok", outcome: { applied: 2, ignored: 1 } }],
+		const { worker, lines } = setup({
+			results: [{ kind: "ok", outcome: { applied: 1, ignored: 1 } }],
 		});
 
 		await worker.tick();
 
-		expect(logs).toEqual([
-			`tenant ${acme}: CAM-P v${older?.version} superseded by v${newer?.version}`,
-			`tenant ${acme}: sent BON-01 v${bonEvent?.version}, CAM-P v${newer?.version}, MEIA-01 v${meiaEvent?.version} (applied 2, ignored 1)`,
+		expect(lines()).toMatchObject([
+			{
+				level: LEVELS.debug,
+				msg: "event superseded",
+				sku: "CAM-P",
+				version: older?.version,
+				supersededBy: newer?.version,
+			},
+			{
+				level: LEVELS.info,
+				msg: "batch sent",
+				items: [
+					{ sku: "BON-01", version: bonEvent?.version },
+					{ sku: "CAM-P", version: newer?.version },
+				],
+				applied: 1,
+				ignored: 1,
+				durationMs: 0,
+			},
 		]);
 	});
 
 	it("omits the counts when the service returns none", async () => {
 		const event = await oneEvent();
-		const { worker, logs } = setup();
+		const { worker, lines } = setup();
 
 		await worker.tick();
 
-		expect(logs).toEqual([`tenant ${acme}: sent CAM-P v${event.version}`]);
+		const [line] = lines();
+		expect(line).toMatchObject({
+			level: LEVELS.info,
+			msg: "batch sent",
+			items: [{ sku: "CAM-P", version: event.version }],
+		});
+		expect(line).not.toHaveProperty("applied");
+		expect(line).not.toHaveProperty("ignored");
 	});
 
-	it("shows the attempt, the retry delay and the move to failed", async () => {
+	it("logs the attempt and retry delay, then the move to failed", async () => {
 		const event = await oneEvent();
 		const failure: AdsResult = { kind: "error", error: "HTTP 500" };
-		const { worker, clock, logs } = setup({
+		const { worker, clock, lines } = setup({
 			results: [failure, failure],
 			overrides: { maxAttempts: 2 },
 		});
@@ -705,23 +757,40 @@ describe("log", () => {
 		clock.advance(500);
 		await worker.tick();
 
-		const name = `tenant ${acme}: CAM-P v${event.version}`;
-		expect(logs).toEqual([
-			`${name} HTTP 500 (attempt 1/2, retry in 0.5 s)`,
-			`${name} HTTP 500 (attempt 2/2) -> failed`,
+		const fields = {
+			sku: "CAM-P",
+			version: event.version,
+			maxAttempts: 2,
+			error: "HTTP 500",
+		};
+		expect(lines()).toMatchObject([
+			{
+				...fields,
+				level: LEVELS.warn,
+				msg: "event will retry",
+				attempts: 1,
+				retryInMs: 500,
+			},
+			{ ...fields, level: LEVELS.error, msg: "event failed", attempts: 2 },
 		]);
+		expect(lines()[1]).not.toHaveProperty("retryInMs");
 	});
 
-	it("shows the Retry-After of a rate-limited batch", async () => {
+	it("logs the Retry-After of a rate-limited batch", async () => {
 		const event = await oneEvent();
-		const { worker, logs } = setup({
+		const { worker, lines } = setup({
 			results: [{ kind: "rate_limited", retryAfterMs: 2000 }],
 		});
 
 		await worker.tick();
 
-		expect(logs).toEqual([
-			`tenant ${acme}: rate limited, CAM-P v${event.version} retry in 2.0 s`,
+		expect(lines()).toMatchObject([
+			{
+				level: LEVELS.warn,
+				msg: "batch rate limited",
+				items: [{ sku: "CAM-P", version: event.version }],
+				retryAfterMs: 2000,
+			},
 		]);
 	});
 });
@@ -751,14 +820,16 @@ describe("run", () => {
 		expect(sleeps.at(-1)).toBe(config.pollIntervalMs);
 	});
 
-	it("logs a failed tick and keeps running", async () => {
+	it("logs a failed tick once with its batch and keeps running", async () => {
 		const clock = fakeClock();
 		const controller = new AbortController();
-		const logs: string[] = [];
+		const memory = createMemoryLogger();
+		const requestIds: string[] = [];
 		let ticks = 0;
 		const worker = createSyncWorker({
 			client: {
-				async sendUpdates() {
+				async sendUpdates(_tenantId, _items, requestId) {
+					requestIds.push(requestId);
 					ticks++;
 					if (ticks === 1) throw new Error("connection reset");
 					return { kind: "ok" };
@@ -770,16 +841,56 @@ describe("run", () => {
 				if (ms === config.pollIntervalMs && ticks >= 3) controller.abort();
 			},
 			config,
-			log: (message) => logs.push(message),
+			logger: memory.logger,
 		});
 
 		await worker.run(controller.signal);
 
-		expect(logs[0]).toBe("tick failed: connection reset");
+		const failures = memory
+			.lines()
+			.filter((line) => line.level >= LEVELS.error);
+		expect(failures).toHaveLength(1);
+		expect(failures[0]).toMatchObject({
+			msg: "tick failed",
+			batchId: requestIds[0],
+			err: { message: "connection reset" },
+		});
 		expect(ticks).toBe(3);
 		const statuses = await db
 			.select({ status: syncEvents.status })
 			.from(syncEvents);
 		expect(statuses.every(({ status }) => status === "sent")).toBe(true);
+	});
+
+	it("logs a tick that fails before claiming without a batch id", async () => {
+		const memory = createMemoryLogger();
+		let reads = 0;
+		const worker = createSyncWorker({
+			client: fakeClient(fakeClock()).client,
+			// The first read is the token bucket's; the second opens the claim.
+			clock: {
+				now: () => {
+					reads++;
+					if (reads === 2) throw new Error("clock broke");
+					return new Date();
+				},
+			},
+			random: () => 0.5,
+			sleep: async () => {},
+			config,
+			logger: memory.logger,
+		});
+
+		await expect(worker.tick()).rejects.toThrow("clock broke");
+
+		const [line] = memory.lines();
+		expect(memory.lines()).toHaveLength(1);
+		expect(line).toMatchObject({
+			level: LEVELS.error,
+			msg: "tick failed",
+			err: { message: "clock broke" },
+		});
+		expect(line).not.toHaveProperty("batchId");
+		expect(line).not.toHaveProperty("tenantId");
 	});
 });

@@ -17,7 +17,8 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 		return;
 	}
 
-	console.error(err);
+	// pino-http logs it with the stack on the access line: one line per error.
+	res.err = err;
 	const error = new InternalServerError();
 	res
 		.status(error.status)

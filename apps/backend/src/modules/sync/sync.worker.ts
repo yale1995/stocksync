@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+import { type Logger, pino } from "pino";
 import { db } from "../../infra/db.js";
 import type { AdsClient, AdsItem } from "./ads-client.js";
 import type { ClaimedEvent } from "./sync.repository.js";
@@ -19,7 +21,7 @@ export type SyncWorkerDeps = {
 	random: () => number;
 	sleep: (ms: number) => Promise<void>;
 	config: SyncWorkerConfig;
-	log?: (message: string) => void;
+	logger?: Logger;
 };
 
 // Full jitter: a uniform wait in [0, cap) spreads retries of events that
@@ -55,12 +57,8 @@ function toItem({ sku, stock, priceCents, version }: ClaimedEvent): AdsItem {
 	return { sku, stock, priceCents, version };
 }
 
-function label(event: ClaimedEvent): string {
-	return `${event.sku} v${event.version}`;
-}
-
-function seconds(ms: number): string {
-	return `${(ms / 1000).toFixed(1)} s`;
+function itemsField(events: ClaimedEvent[]) {
+	return events.map(({ sku, version }) => ({ sku, version }));
 }
 
 export function createSyncWorker({
@@ -69,7 +67,7 @@ export function createSyncWorker({
 	random,
 	sleep,
 	config,
-	log = () => {},
+	logger = pino({ level: "silent" }),
 }: SyncWorkerDeps) {
 	const takeToken = createTokenBucket({
 		ratePerSecond: config.rateLimitPerSecond,
@@ -82,80 +80,112 @@ export function createSyncWorker({
 	async function tick(): Promise<boolean> {
 		await takeToken();
 
-		return db.transaction(async (tx) => {
-			const now = clock.now();
-			const tenantId = await repository.pickDueTenant(tx, now);
-			if (!tenantId) return false;
+		// Rebound once a batch is claimed, so a failure after the claim is logged
+		// with its tenantId and batchId.
+		let log = logger;
+		try {
+			return await db.transaction(async (tx) => {
+				const now = clock.now();
+				const tenantId = await repository.pickDueTenant(tx, now);
+				if (!tenantId) return false;
 
-			const claimed = await repository.claimDueEvents(
-				tx,
-				tenantId,
-				now,
-				config.batchSize,
-			);
-			if (claimed.length === 0) return false;
-
-			const { kept, superseded } = coalesce(claimed);
-			const prefix = `tenant ${tenantId}:`;
-			for (const event of superseded) {
-				const newer = kept.find((k) => k.productId === event.productId);
-				log(`${prefix} ${label(event)} superseded by v${newer?.version}`);
-			}
-			await repository.markSuperseded(
-				tx,
-				tenantId,
-				superseded.map((event) => event.id),
-				now,
-			);
-
-			// The service's version check already makes the order irrelevant to the
-			// final state; sorting by version keeps a deleted and recreated SKU in
-			// the order the changes happened, so neither item is reported ignored.
-			const result = await client.sendUpdates(tenantId, kept.map(toItem));
-			const ids = kept.map((event) => event.id);
-			const done = clock.now();
-
-			if (result.kind === "ok") {
-				await repository.markSent(tx, tenantId, ids, done);
-				await repository.supersedeOlderEvents(tx, tenantId, kept, done);
-				const counts = result.outcome
-					? ` (applied ${result.outcome.applied}, ignored ${result.outcome.ignored})`
-					: "";
-				log(`${prefix} sent ${kept.map(label).join(", ")}${counts}`);
-				return true;
-			}
-
-			if (result.kind === "rate_limited") {
-				await repository.rescheduleEvents(tx, tenantId, ids, {
-					nextAttemptAt: new Date(done.getTime() + result.retryAfterMs),
-					lastError: "HTTP 429",
-					now: done,
-				});
-				log(
-					`${prefix} rate limited, ${kept.map(label).join(", ")} retry in ${seconds(result.retryAfterMs)}`,
+				const claimed = await repository.claimDueEvents(
+					tx,
+					tenantId,
+					now,
+					config.batchSize,
 				);
-				return true;
-			}
+				if (claimed.length === 0) return false;
 
-			for (const event of kept) {
-				const attempts = event.attempts + 1;
-				const failed = attempts >= config.maxAttempts;
-				const delayMs = failed ? 0 : backoffMs(attempts, config, random);
-				await repository.recordFailure(tx, tenantId, event.id, {
-					attempts,
-					lastError: result.error,
-					nextAttemptAt: failed ? null : new Date(done.getTime() + delayMs),
-					now: done,
-				});
-				const attempt = `attempt ${attempts}/${config.maxAttempts}`;
-				log(
-					failed
-						? `${prefix} ${label(event)} ${result.error} (${attempt}) -> failed`
-						: `${prefix} ${label(event)} ${result.error} (${attempt}, retry in ${seconds(delayMs)})`,
+				const batchId = randomUUID();
+				log = logger.child({ tenantId, batchId });
+
+				const { kept, superseded } = coalesce(claimed);
+				for (const event of superseded) {
+					const newer = kept.find((k) => k.productId === event.productId);
+					log.debug(
+						{
+							sku: event.sku,
+							version: event.version,
+							supersededBy: newer?.version,
+						},
+						"event superseded",
+					);
+				}
+				await repository.markSuperseded(
+					tx,
+					tenantId,
+					superseded.map((event) => event.id),
+					now,
 				);
-			}
-			return true;
-		});
+
+				// The service's version check already makes the order irrelevant to
+				// the final state; sorting by version keeps a deleted and recreated
+				// SKU in the order the changes happened, so neither item is reported
+				// ignored.
+				const sentAt = clock.now();
+				const result = await client.sendUpdates(
+					tenantId,
+					kept.map(toItem),
+					batchId,
+				);
+				const ids = kept.map((event) => event.id);
+				const done = clock.now();
+				const items = itemsField(kept);
+
+				if (result.kind === "ok") {
+					await repository.markSent(tx, tenantId, ids, done);
+					await repository.supersedeOlderEvents(tx, tenantId, kept, done);
+					log.info(
+						{
+							items,
+							...result.outcome,
+							durationMs: done.getTime() - sentAt.getTime(),
+						},
+						"batch sent",
+					);
+					return true;
+				}
+
+				if (result.kind === "rate_limited") {
+					await repository.rescheduleEvents(tx, tenantId, ids, {
+						nextAttemptAt: new Date(done.getTime() + result.retryAfterMs),
+						lastError: "HTTP 429",
+						now: done,
+					});
+					log.warn(
+						{ items, retryAfterMs: result.retryAfterMs },
+						"batch rate limited",
+					);
+					return true;
+				}
+
+				for (const event of kept) {
+					const attempts = event.attempts + 1;
+					const failed = attempts >= config.maxAttempts;
+					const delayMs = failed ? 0 : backoffMs(attempts, config, random);
+					await repository.recordFailure(tx, tenantId, event.id, {
+						attempts,
+						lastError: result.error,
+						nextAttemptAt: failed ? null : new Date(done.getTime() + delayMs),
+						now: done,
+					});
+					const fields = {
+						sku: event.sku,
+						version: event.version,
+						attempts,
+						maxAttempts: config.maxAttempts,
+						error: result.error,
+					};
+					if (failed) log.error(fields, "event failed");
+					else log.warn({ ...fields, retryInMs: delayMs }, "event will retry");
+				}
+				return true;
+			});
+		} catch (err) {
+			log.error({ err }, "tick failed");
+			throw err;
+		}
 	}
 
 	async function run(signal: AbortSignal): Promise<void> {
@@ -163,8 +193,8 @@ export function createSyncWorker({
 			let claimed = false;
 			try {
 				claimed = await tick();
-			} catch (err) {
-				log(`tick failed: ${err instanceof Error ? err.message : String(err)}`);
+			} catch {
+				// Already logged by tick; the next tick retries.
 			}
 			if (!claimed && !signal.aborted) await sleep(config.pollIntervalMs);
 		}

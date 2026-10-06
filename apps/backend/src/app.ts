@@ -1,6 +1,7 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { type Express, type Router } from "express";
+import type { Logger } from "pino";
 import { API_PREFIX } from "./http/api-prefix.js";
 import { authRouter } from "./http/controllers/auth.controller.js";
 import { docsRouter } from "./http/controllers/docs.controller.js";
@@ -13,7 +14,9 @@ import {
 	errorHandler,
 	notFoundHandler,
 } from "./http/middlewares/error-handler.js";
+import { createHttpLogger } from "./http/middlewares/http-logger.js";
 import { env } from "./infra/env.js";
+import { logger as rootLogger } from "./infra/logger.js";
 
 type MountedRouter = { path: string; router: Router };
 
@@ -30,10 +33,22 @@ export const apiRoutes: MountedRouter[] = [
 	{ path: "/sync", router: syncRouter },
 ];
 
-export function createApp(): Express {
+export function createApp({
+	logger = rootLogger,
+}: {
+	logger?: Logger;
+} = {}): Express {
 	const app = express();
 
-	app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+	// First, so CORS failures and 404s also get a request id and an access line.
+	app.use(createHttpLogger(logger));
+	app.use(
+		cors({
+			origin: env.CORS_ORIGIN,
+			credentials: true,
+			exposedHeaders: ["X-Request-Id"],
+		}),
+	);
 	app.use(cookieParser());
 	app.use(express.json());
 	app.use(docsRouter);

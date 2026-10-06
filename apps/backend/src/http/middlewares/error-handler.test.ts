@@ -1,6 +1,6 @@
 import express from "express";
 import request from "supertest";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { createApp } from "../../app.js";
 import {
@@ -45,10 +45,6 @@ function createTestApp() {
 }
 
 describe("errorHandler", () => {
-	afterEach(() => {
-		vi.restoreAllMocks();
-	});
-
 	it("returns the status, code and default message of an AppError subclass", async () => {
 		const response = await request(createTestApp()).get("/not-found");
 
@@ -83,8 +79,6 @@ describe("errorHandler", () => {
 	});
 
 	it("returns a generic 500 for unknown errors without leaking details", async () => {
-		vi.spyOn(console, "error").mockImplementation(() => {});
-
 		const response = await request(createTestApp()).get("/unknown");
 
 		expect(response.status).toBe(500);
@@ -111,13 +105,7 @@ describe("errorHandler", () => {
 });
 
 describe("createApp", () => {
-	afterEach(() => {
-		vi.restoreAllMocks();
-	});
-
 	it("registers the error handler", async () => {
-		vi.spyOn(console, "error").mockImplementation(() => {});
-
 		const response = await request(createApp())
 			.post("/health")
 			.set("Content-Type", "application/json")

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 33,
+  "next_id": 38,
   "lessons": [
     {
       "id": "L-001",
@@ -487,17 +487,21 @@
       "text": "When behavior depends on NODE_ENV or another env flag, test the wiring in each environment value through the app, not only the pure function it calls",
       "signal": "surviving_mutant",
       "scope": "env",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "api-docs"
+        "api-docs",
+        "logging"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "validation.md D1 (docs.controller.ts:7, DOCS-22) (env)"
+        "validation.md D1 (docs.controller.ts:7, DOCS-22) (env)",
+        "M26 apps/backend/src/infra/logger.ts:19 (env)",
+        "M26b apps/backend/src/infra/logger.ts:24 (env)",
+        "M28 apps/ads-mock/src/server.ts:10 (env)"
       ],
       "created": "2026-10-05T20:35:59Z",
-      "last_seen": "2026-10-05T20:35:59Z"
+      "last_seen": "2026-10-06T19:17:31Z"
     },
     {
       "id": "L-028",
@@ -588,6 +592,96 @@
       ],
       "created": "2026-10-06T17:53:35Z",
       "last_seen": "2026-10-06T17:53:35Z"
+    },
+    {
+      "id": "L-033",
+      "key": "surviving_mutant::when a rule has a path specific override test the path s failure case too not only the override s happy case",
+      "text": "When a rule has a path-specific override, test the path's failure case too, not only the override's happy case",
+      "signal": "surviving_mutant",
+      "scope": "http",
+      "status": "candidate",
+      "features": [
+        "logging"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M24 apps/backend/src/http/middlewares/http-logger.ts:32 (http)"
+      ],
+      "created": "2026-10-06T19:12:34Z",
+      "last_seen": "2026-10-06T19:12:34Z"
+    },
+    {
+      "id": "L-034",
+      "key": "ac_gap::assert default values explicitly not only caller overridden ones",
+      "text": "Assert default values explicitly, not only caller-overridden ones",
+      "signal": "ac_gap",
+      "scope": "http",
+      "status": "candidate",
+      "features": [
+        "logging"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "LOG-09 M25 apps/backend/src/infra/env.ts:13 (http)"
+      ],
+      "created": "2026-10-06T19:12:34Z",
+      "last_seen": "2026-10-06T19:12:34Z"
+    },
+    {
+      "id": "L-035",
+      "key": "surviving_mutant::test defense in depth settings such as log redaction directly since an outer layer masks their removal in end to end tests",
+      "text": "Test defense-in-depth settings such as log redaction directly, since an outer layer masks their removal in end-to-end tests",
+      "signal": "surviving_mutant",
+      "scope": "logging",
+      "status": "candidate",
+      "features": [
+        "logging"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M10 apps/backend/src/infra/logger.ts:11 (logging)"
+      ],
+      "created": "2026-10-06T19:12:34Z",
+      "last_seen": "2026-10-06T19:12:34Z"
+    },
+    {
+      "id": "L-036",
+      "key": "surviving_mutant::when the same safeguard is configured at two layers test each layer on its own path since the other layer masks its removal in end to end tests",
+      "text": "When the same safeguard is configured at two layers, test each layer on its own path, since the other layer masks its removal in end-to-end tests",
+      "signal": "surviving_mutant",
+      "scope": "logging",
+      "status": "candidate",
+      "features": [
+        "logging"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M30 apps/backend/src/infra/logger.ts:15 (logging)"
+      ],
+      "created": "2026-10-06T19:44:45Z",
+      "last_seen": "2026-10-06T19:44:45Z"
+    },
+    {
+      "id": "L-037",
+      "key": "spec_precision_gap::when a spec lists formatter options such as hidden keys or single line output assert them on rendered output not only the custom format function",
+      "text": "When a spec lists formatter options such as hidden keys or single-line output, assert them on rendered output, not only the custom format function",
+      "signal": "spec_precision_gap",
+      "scope": "logging",
+      "status": "candidate",
+      "features": [
+        "logging"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M39/M40 apps/backend/src/infra/pretty.ts:24-27 (logging)"
+      ],
+      "created": "2026-10-06T19:44:45Z",
+      "last_seen": "2026-10-06T19:44:45Z"
     }
   ]
 }

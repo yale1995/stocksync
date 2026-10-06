@@ -33,6 +33,7 @@ function client(baseUrl: string, timeoutMs = 1000) {
 
 const TENANT = "0199a000-0000-7000-8000-000000000001";
 const ITEMS = [{ sku: "CAM-P", stock: 3, priceCents: 4990, version: 7 }];
+const REQUEST_ID = "0199a000-0000-4000-8000-0000000000aa";
 
 function respond(
 	status: number,
@@ -45,11 +46,12 @@ function respond(
 }
 
 describe("createHttpAdsClient", () => {
-	it("posts the batch with the API key and returns ok on 2xx", async () => {
+	it("posts the batch with the API key and request id and returns ok on 2xx", async () => {
 		let received: {
 			method?: string;
 			url?: string;
 			key?: string;
+			requestId?: string;
 			body?: unknown;
 		} = {};
 		const baseUrl = await listen((req, res) => {
@@ -62,6 +64,7 @@ describe("createHttpAdsClient", () => {
 					method: req.method,
 					url: req.url,
 					key: req.headers["x-api-key"] as string,
+					requestId: req.headers["x-request-id"] as string,
 					body: JSON.parse(raw),
 				};
 				res.writeHead(200, { "Content-Type": "application/json" });
@@ -69,7 +72,7 @@ describe("createHttpAdsClient", () => {
 			});
 		});
 
-		const result = await client(baseUrl).sendUpdates(TENANT, ITEMS);
+		const result = await client(baseUrl).sendUpdates(TENANT, ITEMS, REQUEST_ID);
 
 		expect(result).toEqual({
 			kind: "ok",
@@ -79,6 +82,7 @@ describe("createHttpAdsClient", () => {
 			method: "POST",
 			url: "/updates",
 			key: "secret",
+			requestId: REQUEST_ID,
 			body: { tenantId: TENANT, items: ITEMS },
 		});
 	});
@@ -89,7 +93,9 @@ describe("createHttpAdsClient", () => {
 			res.end();
 		});
 
-		expect(await client(baseUrl).sendUpdates(TENANT, ITEMS)).toEqual({
+		expect(
+			await client(baseUrl).sendUpdates(TENANT, ITEMS, REQUEST_ID),
+		).toEqual({
 			kind: "ok",
 		});
 	});
@@ -105,7 +111,11 @@ describe("createHttpAdsClient", () => {
 				res.end(body);
 			});
 
-			const result = await client(baseUrl).sendUpdates(TENANT, ITEMS);
+			const result = await client(baseUrl).sendUpdates(
+				TENANT,
+				ITEMS,
+				REQUEST_ID,
+			);
 
 			expect(result).toStrictEqual({ kind: "ok" });
 		},
@@ -114,7 +124,9 @@ describe("createHttpAdsClient", () => {
 	it("returns rate_limited with Retry-After in milliseconds on 429", async () => {
 		const baseUrl = await listen(respond(429, { "Retry-After": "2" }));
 
-		expect(await client(baseUrl).sendUpdates(TENANT, ITEMS)).toEqual({
+		expect(
+			await client(baseUrl).sendUpdates(TENANT, ITEMS, REQUEST_ID),
+		).toEqual({
 			kind: "rate_limited",
 			retryAfterMs: 2000,
 		});
@@ -126,7 +138,9 @@ describe("createHttpAdsClient", () => {
 	])("falls back to 1 s when Retry-After is %s", async (_label, headers) => {
 		const baseUrl = await listen(respond(429, headers));
 
-		expect(await client(baseUrl).sendUpdates(TENANT, ITEMS)).toEqual({
+		expect(
+			await client(baseUrl).sendUpdates(TENANT, ITEMS, REQUEST_ID),
+		).toEqual({
 			kind: "rate_limited",
 			retryAfterMs: 1000,
 		});
@@ -137,7 +151,9 @@ describe("createHttpAdsClient", () => {
 		async (status) => {
 			const baseUrl = await listen(respond(status));
 
-			expect(await client(baseUrl).sendUpdates(TENANT, ITEMS)).toEqual({
+			expect(
+				await client(baseUrl).sendUpdates(TENANT, ITEMS, REQUEST_ID),
+			).toEqual({
 				kind: "error",
 				error: `HTTP ${status}`,
 			});
@@ -149,7 +165,9 @@ describe("createHttpAdsClient", () => {
 			// Never answers.
 		});
 
-		expect(await client(baseUrl, 50).sendUpdates(TENANT, ITEMS)).toEqual({
+		expect(
+			await client(baseUrl, 50).sendUpdates(TENANT, ITEMS, REQUEST_ID),
+		).toEqual({
 			kind: "error",
 			error: "timeout",
 		});
@@ -160,7 +178,9 @@ describe("createHttpAdsClient", () => {
 		server?.close();
 		await once(server as Server, "close");
 
-		expect(await client(baseUrl).sendUpdates(TENANT, ITEMS)).toEqual({
+		expect(
+			await client(baseUrl).sendUpdates(TENANT, ITEMS, REQUEST_ID),
+		).toEqual({
 			kind: "error",
 			error: "network error",
 		});
