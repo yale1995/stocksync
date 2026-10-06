@@ -74,3 +74,27 @@ export interface SyncStatus {
 	lastSuccessfulSyncAt: string | null;
 	failedEvents: FailedSyncEvent[];
 }
+
+export interface Health {
+	status: "ok" | "unavailable";
+	server: {
+		status: "up";
+		version: string;
+		nodeVersion: string;
+		environment: "development" | "test" | "production";
+		provider: "local";
+	};
+	database: {
+		status: "up" | "down";
+		version: string | null;
+		maxConnections: number | null;
+		openConnections: number | null;
+		latencyMs: number | null;
+	};
+	sync: {
+		pending: number;
+		failed: number;
+		oldestPendingAt: string | null;
+		lastSuccessfulSyncAt: string | null;
+	} | null;
+}
