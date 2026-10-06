@@ -180,6 +180,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md D11,D23 (openapi-description.test.ts:86, DOCS-25) (tests)
 - last seen: 2026-10-05T20:35:59Z
 
+### L-029 - When a spec fixes a timeout, assert the literal bound (still pending 1 ms before, done at the bound) and hang each guarded call in its own test, not only the first, nor by advancing an imported constant
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `service` · harmful: 0
+- features: health
+- evidence: validation.md M12,M13 (health.service.ts:6,50,61) HLT-11 (service)
+- last seen: 2026-10-06T16:59:25Z
+
+### L-030 - When a spec names the source of a reported value, compare it to that source queried in the test, not only to a type or range
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repo-layer` · harmful: 0
+- features: health
+- evidence: validation.md M8-M11 (health.repository.ts:14-19, health.service.ts:51) HLT-04 (repo-layer)
+- last seen: 2026-10-06T16:59:25Z
+
+### L-031 - When a spec requires logging the cause of a failure, assert the logged arguments include the error, not only that the logger was called
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `service` · harmful: 0
+- features: health
+- evidence: validation.md M18 (health.service.ts:67) HLT-12 (service)
+- last seen: 2026-10-06T16:59:25Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
