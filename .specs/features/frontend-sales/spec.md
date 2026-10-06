@@ -35,6 +35,7 @@ Registering a sale is the operator's core task, often under time pressure, and t
 | Displayed unit price | The product's current `priceCents`; the 201 summary shows the price the API froze | The API is the source of truth for the charged price | y |
 | Client validation messages | Not a whole number: "Enter a whole number"; below 1: "Enter at least 1"; above stock: "Only N available" | Direction contract's "Only N available"; each names the fix | y |
 | Outcome alert | One alert above the items card (`role="alert"`), replaced by the next submit's outcome. Failure title "Sale not registered" + API message + "Nothing was changed."; network/5xx add "Submitting again will not register it twice." | Sales are all-or-nothing; idempotency makes a retry safe | y |
+| Recovery copy (added by the Impeccable finish review) | The failure alert names the fix for a 409 insufficient stock and a 404; each short SKU of a 409 is its own list item; any other message renders as sent | The direction contract STORY: what failed, that nothing changed, and how to fix it | y |
 | A line whose product no longer exists (detail 404) | Shows "This product is no longer available" and blocks submit | Happens after a 404 sale invalidates products | y |
 
 **Open questions:** none - all resolved or logged above.
@@ -99,8 +100,8 @@ Registering a sale is the operator's core task, often under time pressure, and t
 
 1. SALE-16: WHEN the API answers 201 THEN the system SHALL show "Sale registered" with each item's SKU, name, quantity, unit price and line total and the sale total from the response, reset the form to one empty line, and use a new Idempotency-Key for the next sale
 2. SALE-17: WHEN the API answers 201 THEN the system SHALL invalidate the `products` queries
-3. SALE-18: IF the API answers 409 THEN the system SHALL show "Sale not registered" with the API message and "Nothing was changed.", keep the lines, and invalidate the `products` queries so the lines show the current stock
-4. SALE-19: IF the API answers 404 THEN the system SHALL show "Sale not registered" with the API message ("One or more products were not found"), keep the lines and invalidate the `products` queries
+3. SALE-18: IF the API answers 409 THEN the system SHALL show "Sale not registered" with the API message (an insufficient-stock message as "Insufficient stock for:" and one list item per short SKU), "Nothing was changed." and, for insufficient stock, "Lower the highlighted quantities or remove those lines, then register again.", keep the lines, and invalidate the `products` queries so the lines show the current stock
+4. SALE-19: IF the API answers 404 THEN the system SHALL show "Sale not registered" with the API message ("One or more products were not found") and "Remove the lines marked as no longer available, then register again.", keep the lines and invalidate the `products` queries
 5. SALE-20: IF the API answers 400 THEN the system SHALL show "Sale not registered" with the API message and keep the lines
 6. SALE-21: IF the request fails without a response or with a 5xx THEN the system SHALL show "Sale not registered" with the error message and "Submitting again will not register it twice.", and keep the lines
 7. SALE-22: The outcome alert SHALL sit above the items card with `role="alert"` and SHALL be replaced by the next submit's outcome
@@ -113,6 +114,7 @@ Registering a sale is the operator's core task, often under time pressure, and t
 
 - WHEN a 201 arrives with `Idempotent-Replayed: true` THEN the system SHALL show the same "Sale registered" summary (the sale exists once)
 - WHEN the user double-clicks "Register sale" THEN the system SHALL send one request
+- WHILE a picker search is pending (typed text not yet searched) the picker SHALL show "Searching…" and offer no results of the previous search, so Enter cannot pick a product the user did not search for (found during the Impeccable finish review)
 - WHEN a 409 lowers a line's stock below its quantity THEN that line SHALL show "Only N available" and the submit SHALL be disabled until fixed
 
 ---
