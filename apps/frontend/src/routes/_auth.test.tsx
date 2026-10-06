@@ -2,6 +2,7 @@ import { act, screen, waitFor, within } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import { beforeEach, describe, expect, it } from "vitest";
 import { meQuery } from "@/api/auth";
+import { apiUrl } from "@/test/api-url";
 import {
 	emptyProducts,
 	emptySyncStatus,
@@ -73,7 +74,7 @@ describe("auth guard and layout", () => {
 		signedIn();
 		let logoutCalls = 0;
 		server.use(
-			http.post("/api/v1/auth/logout", () => {
+			http.post(apiUrl("/auth/logout"), () => {
 				logoutCalls += 1;
 				signedOut();
 				return new HttpResponse(null, { status: 204 });
@@ -91,7 +92,7 @@ describe("auth guard and layout", () => {
 
 	it("stays signed in and explains when logout fails", async () => {
 		signedIn();
-		server.use(http.post("/api/v1/auth/logout", () => HttpResponse.error()));
+		server.use(http.post(apiUrl("/auth/logout"), () => HttpResponse.error()));
 		const { user, router } = renderApp("/sync");
 
 		await user.click(await screen.findByRole("button", { name: "Log out" }));

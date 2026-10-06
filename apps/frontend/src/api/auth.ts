@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { apiFetch } from "./client";
+import { api } from "./client";
 import type { CurrentUser } from "./types";
 
 export interface Credentials {
@@ -7,19 +7,18 @@ export interface Credentials {
 	password: string;
 }
 
-export function login(credentials: Credentials) {
-	return apiFetch<CurrentUser>("/auth/login", {
-		method: "POST",
-		body: credentials,
-	});
+export async function login(credentials: Credentials) {
+	const { data } = await api.post<CurrentUser>("/auth/login", credentials);
+	return data;
 }
 
-export function logout() {
-	return apiFetch<void>("/auth/logout", { method: "POST" });
+export async function logout() {
+	await api.post("/auth/logout");
 }
 
-export function getMe() {
-	return apiFetch<CurrentUser>("/auth/me");
+export async function getMe() {
+	const { data } = await api.get<CurrentUser>("/auth/me");
+	return data;
 }
 
 export const meQuery = queryOptions({

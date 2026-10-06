@@ -1,6 +1,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import { beforeEach, describe, expect, it } from "vitest";
+import { apiUrl } from "@/test/api-url";
 import { currentUser } from "@/test/fixtures";
 import { emptyProducts, signedIn, signedOut } from "@/test/handlers";
 import { renderApp } from "@/test/render";
@@ -13,7 +14,7 @@ const invalidCredentials = {
 function acceptLogin() {
 	const requests: unknown[] = [];
 	server.use(
-		http.post("/api/v1/auth/login", async ({ request }) => {
+		http.post(apiUrl("/auth/login"), async ({ request }) => {
 			requests.push(await request.json());
 			return HttpResponse.json(currentUser);
 		}),
@@ -57,7 +58,7 @@ describe("login page", () => {
 		let respond: () => void = () => {};
 		server.use(
 			http.post(
-				"/api/v1/auth/login",
+				apiUrl("/auth/login"),
 				() =>
 					new Promise<Response>((resolve) => {
 						respond = () => resolve(HttpResponse.json(currentUser));
@@ -113,7 +114,7 @@ describe("login page", () => {
 	it("shows the API message in an alert on 401", async () => {
 		signedOut();
 		server.use(
-			http.post("/api/v1/auth/login", () =>
+			http.post(apiUrl("/auth/login"), () =>
 				HttpResponse.json(invalidCredentials, { status: 401 }),
 			),
 		);
@@ -129,7 +130,7 @@ describe("login page", () => {
 
 	it("shows the network message when the API is unreachable", async () => {
 		signedOut();
-		server.use(http.post("/api/v1/auth/login", () => HttpResponse.error()));
+		server.use(http.post(apiUrl("/auth/login"), () => HttpResponse.error()));
 		const { user } = renderApp("/login");
 
 		await fillAndSubmit(user);

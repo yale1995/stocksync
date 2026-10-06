@@ -2,6 +2,7 @@ import { act, screen, waitFor, within } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import { describe, expect, it } from "vitest";
 import type { Page, Product } from "@/api/types";
+import { apiUrl } from "@/test/api-url";
 import { makeProduct, page } from "@/test/fixtures";
 import { signedIn } from "@/test/handlers";
 import { renderApp } from "@/test/render";
@@ -25,7 +26,7 @@ function serveProducts(
 ) {
 	const requests: URL[] = [];
 	server.use(
-		http.get("/api/v1/products", ({ request }) => {
+		http.get(apiUrl("/products"), ({ request }) => {
 			const url = new URL(request.url);
 			requests.push(url);
 			const result = respond(url);

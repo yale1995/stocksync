@@ -1,4 +1,4 @@
-import { apiFetch } from "./client";
+import { api } from "./client";
 import type { Sale } from "./types";
 
 export interface SaleItemInput {
@@ -6,10 +6,14 @@ export interface SaleItemInput {
 	quantity: number;
 }
 
-export function createSale(items: SaleItemInput[], idempotencyKey: string) {
-	return apiFetch<Sale>("/sales", {
-		method: "POST",
-		body: { items },
-		headers: { "Idempotency-Key": idempotencyKey },
-	});
+export async function createSale(
+	items: SaleItemInput[],
+	idempotencyKey: string,
+) {
+	const { data } = await api.post<Sale>(
+		"/sales",
+		{ items },
+		{ headers: { "Idempotency-Key": idempotencyKey } },
+	);
+	return data;
 }

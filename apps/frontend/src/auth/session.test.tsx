@@ -2,7 +2,8 @@ import { screen, waitFor } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { meQuery } from "@/api/auth";
-import { apiFetch } from "@/api/client";
+import { api } from "@/api/client";
+import { apiUrl } from "@/test/api-url";
 import { currentUser, unauthorized } from "@/test/fixtures";
 import {
 	emptyProducts,
@@ -25,7 +26,7 @@ async function renderSignedIn(path: string) {
 function expireSession() {
 	signedOut();
 	server.use(
-		http.get("/api/v1/products", () =>
+		http.get(apiUrl("/products"), () =>
 			HttpResponse.json(unauthorized, { status: 401 }),
 		),
 	);
@@ -33,7 +34,7 @@ function expireSession() {
 
 function requestProducts(app: ReturnType<typeof renderApp>, key: string) {
 	return app.queryClient
-		.fetchQuery({ queryKey: [key], queryFn: () => apiFetch("/products") })
+		.fetchQuery({ queryKey: [key], queryFn: () => api.get("/products") })
 		.catch(() => undefined);
 }
 
@@ -66,7 +67,7 @@ describe("session expiry", () => {
 		await requestProducts(app, "probe");
 		await screen.findByText(expiredMessage);
 		server.use(
-			http.post("/api/v1/auth/login", () => HttpResponse.json(currentUser)),
+			http.post(apiUrl("/auth/login"), () => HttpResponse.json(currentUser)),
 		);
 
 		await app.user.type(screen.getByLabelText("Email"), "operator@acme.test");

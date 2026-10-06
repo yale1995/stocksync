@@ -19,16 +19,15 @@ export default defineConfig({
 	resolve: {
 		alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
 	},
-	server: {
-		// Same origin as the app: no CORS preflight and a first-party auth cookie,
-		// like a production reverse proxy serving app and API on one domain.
-		proxy: { "/api": "http://localhost:3333" },
-	},
 	test: {
 		environment: "jsdom",
 		include: ["src/**/*.test.{ts,tsx}"],
 		setupFiles: ["src/test/setup.ts"],
+		// jsdom enforces CORS on MSW's mocked responses too. CORS is the API's
+		// job (covered in the backend's app.test.ts), so the tests serve the app
+		// from the API's origin.
+		environmentOptions: { jsdom: { url: "http://localhost:3333" } },
 		// Dates render in the browser's time zone; tests pin one.
-		env: { TZ: "UTC" },
+		env: { TZ: "UTC", VITE_API_URL: "http://localhost:3333/api/v1" },
 	},
 });
