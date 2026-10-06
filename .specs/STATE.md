@@ -54,4 +54,4 @@
 
 ## Handoff
 
-Feature `health` (prompt 06) is implemented on `feat/health` from `main`, verified PASS (iteration 1) and committed as `feat(api): report server, database and sync queue health` plus `chore: add spec-driven artifacts for health`. Next: open the PR only with the user's go-ahead; the README later records the information disclosure and the `sync_events` scans as known limitations.
+Feature `frontend-health` is implemented on `feat/frontend-health` from `main`, verified PASS (iteration 1, 26/27 mutants killed) and committed as `feat(frontend): add a public system health page` plus `chore: add spec-driven artifacts for frontend-health`. The surviving mutant (Connections dash with only one null field, a shape the backend never sends) is recorded as candidate lesson L-032 and left as an optional follow-up. Next: open the PR only with the user's go-ahead.
