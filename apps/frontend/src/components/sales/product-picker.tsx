@@ -41,9 +41,15 @@ export function ProductPicker({
 		...productsQuery({ search: debouncedSearch.trim() || undefined, page: 1 }),
 		enabled: open,
 	});
-	const options =
-		query.data?.data.filter((product) => !excludedIds.includes(product.id)) ??
-		[];
+	// Results of an older search must not be selectable: a fast "cam" + Enter
+	// would otherwise pick the first product of the previous list.
+	const searching =
+		search.trim() !== debouncedSearch.trim() || query.isPlaceholderData;
+	const options = searching
+		? []
+		: (query.data?.data.filter(
+				(product) => !excludedIds.includes(product.id),
+			) ?? []);
 
 	function handleOpenChange(next: boolean) {
 		setOpen(next);
@@ -86,9 +92,9 @@ export function ProductPicker({
 						maxLength={100}
 					/>
 					<CommandList>
-						{query.isPending ? (
+						{query.isPending || searching ? (
 							<p className="py-6 text-center text-sm text-muted-foreground">
-								Loading products…
+								Searching…
 							</p>
 						) : query.isError ? (
 							<p className="px-3 py-6 text-center text-sm text-destructive">

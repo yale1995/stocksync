@@ -38,6 +38,16 @@
 - AD-032: The sale form keeps its lines and Idempotency-Key in one reducer (`use-sale-form.ts`): every change to the lines (pick, quantity, add, remove) generates a new `crypto.randomUUID()` key, a resubmit of unchanged lines reuses it, and a success resets the lines with a new key. A ref (not mutation state) blocks a second submit before React re-renders. A 409 or 404 invalidates `["products"]`, so each line's `GET /products/:id` query shows the current stock (feature `frontend-sales`).
 - AD-033: `ApiError` is registered as TanStack Query's `defaultError`, because every query and mutation goes through `apiFetch` (feature `frontend-sales`).
 
+- AD-034: `/sync` polls `GET /sync/status` every 5 s with `retry: false`: the poll is the retry, so a failed refresh shows its non-blocking warning ("Could not refresh. Showing data from <time>; retrying every 5 seconds.") at once, keeps the last data, and clears on the next success. Dates use `Intl` in the browser's time zone; tests pin `TZ=UTC` (feature `frontend-sync`).
+
+- AD-035: Impeccable finish review (code-led, category-standard world) shipped after two fix rounds:
+  - Alerts use the ink body with a `--destructive-ink` (#B91C1C) title; #DC2626 is under 4.5:1 on the tinted background.
+  - A 409 alert lists each short SKU and names the recovery.
+  - `tabular-nums` applies only to numbers.
+  - Below `md`, the sale lines and failed-updates tables reflow into labelled grid rows (CSS `::before` labels, same table DOM) instead of scrolling sideways.
+  - The product picker offers no results of a stale search while the debounce is pending.
+  - The design system is recorded in `apps/frontend/DESIGN.md` (frontend).
+
 ## Handoff
 
-Part C: `frontend-setup`, `frontend-auth` and `frontend-products` are committed (stacked branches). `frontend-sales` (4 of 5) is verified PASS and uncommitted on `feat/frontend-sales`. Next: commit it after the user's review, then `frontend-sync` and the Impeccable finish review + `apps/frontend/DESIGN.md`. Plan: `docs/prompts/06-frontend.md`.
+Part C is complete on the stacked branches `feat/frontend-setup` → `feat/frontend-auth` → `feat/frontend-products` → `feat/frontend-sales` → `feat/frontend-sync`. All five features are verified PASS and committed. The Impeccable finish review shipped after two fix rounds, and the design system is recorded in `apps/frontend/DESIGN.md` + `.impeccable/design.json`. The design-review changes are uncommitted on `feat/frontend-sync`, pending the user's review. Next: commit them, open the 5 PRs (only with the user's go-ahead), then the README (the prompt's "Why" and "Trade-offs" sections are the inputs).

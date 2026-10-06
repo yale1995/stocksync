@@ -33,9 +33,9 @@ export function SaleLinesCard({ lines, dispatch }: SaleLinesCardProps) {
 		<div className="overflow-hidden rounded-lg border bg-card shadow-xs">
 			<Table
 				aria-label="Sale items"
-				className="[&_td:first-child]:pl-4 [&_td:last-child]:pr-3 [&_th]:text-muted-foreground [&_th:first-child]:pl-4 [&_th:last-child]:pr-3"
+				className="max-md:block md:[&_td:first-child]:pl-4 md:[&_td:last-child]:pr-3 [&_th]:text-muted-foreground [&_th:first-child]:pl-4 [&_th:last-child]:pr-3"
 			>
-				<TableHeader>
+				<TableHeader className="max-md:hidden">
 					<TableRow className="hover:bg-transparent">
 						<TableHead className="min-w-56">Product</TableHead>
 						<TableHead className="w-24 text-right">In stock</TableHead>
@@ -47,7 +47,7 @@ export function SaleLinesCard({ lines, dispatch }: SaleLinesCardProps) {
 						</TableHead>
 					</TableRow>
 				</TableHeader>
-				<TableBody>
+				<TableBody className="max-md:block">
 					{lines.map((view, index) => (
 						<SaleLineRows
 							key={view.line.id}
@@ -100,8 +100,16 @@ function SaleLineRows({
 
 	return (
 		<>
-			<TableRow className={cn("hover:bg-transparent", message && "border-b-0")}>
-				<TableCell className="py-2">
+			{/* Below md each line is a three-row grid (picker; stock and unit price;
+			    quantity, subtotal and remove) with CSS labels, so the card never
+			    scrolls sideways on a phone and every figure stays named. */}
+			<TableRow
+				className={cn(
+					"hover:bg-transparent max-md:grid max-md:grid-cols-[1fr_auto_auto] max-md:items-center max-md:gap-x-3 max-md:gap-y-2 max-md:px-4 max-md:py-3",
+					message && "border-b-0 max-md:pb-1",
+				)}
+			>
+				<TableCell className="py-2 max-md:col-span-3 max-md:p-0">
 					<ProductPicker
 						lineNumber={lineNumber}
 						value={product}
@@ -113,11 +121,17 @@ function SaleLineRows({
 				</TableCell>
 				<TableCell
 					data-testid="line-stock"
-					className={cn("text-right", short && "font-medium text-destructive")}
+					className={cn(
+						"text-right tabular-nums max-md:col-start-1 max-md:row-start-2 max-md:p-0 max-md:text-left",
+						short && "font-medium text-destructive",
+					)}
 				>
+					<span className="font-normal text-muted-foreground md:hidden">
+						In stock{" "}
+					</span>
 					{product ? product.stock : "—"}
 				</TableCell>
-				<TableCell className="text-right">
+				<TableCell className="text-right max-md:col-start-1 max-md:row-start-3 max-md:flex max-md:items-center max-md:p-0 max-md:before:content-['Qty'] max-md:before:mr-1.5 max-md:before:font-normal max-md:before:text-muted-foreground">
 					<Input
 						type="number"
 						inputMode="numeric"
@@ -135,19 +149,22 @@ function SaleLineRows({
 								quantity: event.target.value,
 							})
 						}
-						className="ml-auto w-20 text-right"
+						className="ml-auto w-20 text-right tabular-nums max-md:ml-0"
 					/>
 				</TableCell>
-				<TableCell data-testid="line-price" className="text-right">
+				<TableCell
+					data-testid="line-price"
+					className="text-right tabular-nums max-md:col-span-2 max-md:col-start-2 max-md:row-start-2 max-md:p-0 max-md:before:content-['Unit_price'] max-md:before:mr-1.5 max-md:before:font-normal max-md:before:text-muted-foreground"
+				>
 					{product ? formatCents(product.priceCents) : "—"}
 				</TableCell>
 				<TableCell
 					data-testid="line-subtotal"
-					className="text-right font-medium"
+					className="text-right font-medium tabular-nums max-md:col-start-2 max-md:row-start-3 max-md:p-0 max-md:before:content-['Subtotal'] max-md:before:mr-1.5 max-md:before:font-normal max-md:before:text-muted-foreground"
 				>
 					{subtotal === undefined ? "—" : formatCents(subtotal)}
 				</TableCell>
-				<TableCell>
+				<TableCell className="max-md:col-start-3 max-md:row-start-3 max-md:p-0">
 					<Button
 						type="button"
 						variant="ghost"
@@ -162,13 +179,16 @@ function SaleLineRows({
 				</TableCell>
 			</TableRow>
 			{message && (
-				<TableRow className="hover:bg-transparent">
-					<TableCell colSpan={3} className="pt-0 pb-3 text-right">
+				<TableRow className="hover:bg-transparent max-md:block max-md:px-4 max-md:pb-3">
+					<TableCell
+						colSpan={3}
+						className="pt-0 pb-3 text-right max-md:block max-md:p-0 max-md:text-left"
+					>
 						<p id={messageId} className="text-xs text-destructive">
 							{message}
 						</p>
 					</TableCell>
-					<TableCell colSpan={3} className="pt-0 pb-3" />
+					<TableCell colSpan={3} className="pt-0 pb-3 max-md:hidden" />
 				</TableRow>
 			)}
 		</>

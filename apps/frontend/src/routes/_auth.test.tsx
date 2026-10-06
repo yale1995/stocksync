@@ -2,12 +2,18 @@ import { act, screen, waitFor, within } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import { beforeEach, describe, expect, it } from "vitest";
 import { meQuery } from "@/api/auth";
-import { emptyProducts, signedIn, signedOut } from "@/test/handlers";
+import {
+	emptyProducts,
+	emptySyncStatus,
+	signedIn,
+	signedOut,
+} from "@/test/handlers";
 import { renderApp } from "@/test/render";
 import { server } from "@/test/server";
 
 beforeEach(() => {
 	emptyProducts();
+	emptySyncStatus();
 });
 
 describe("auth guard and layout", () => {

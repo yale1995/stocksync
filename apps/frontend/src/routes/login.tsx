@@ -89,7 +89,7 @@ function LoginPage() {
 					</span>
 				</div>
 
-				<Card className="shadow-sm">
+				<Card className="rounded-lg shadow-sm">
 					<CardHeader>
 						<CardTitle>
 							<h1
