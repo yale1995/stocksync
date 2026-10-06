@@ -4,7 +4,9 @@ import express, {
 	type Express,
 	type RequestHandler,
 } from "express";
+import { type Logger, pino } from "pino";
 import { z } from "zod";
+import { createHttpLogger } from "./logger.js";
 import { createRateLimiter } from "./rate-limiter.js";
 
 export type AppOptions = {
@@ -14,6 +16,7 @@ export type AppOptions = {
 	timeoutDelayMs: number;
 	random?: () => number;
 	now?: () => number;
+	logger?: Logger;
 };
 
 type Ad = {
@@ -54,6 +57,7 @@ export function createApp({
 	timeoutDelayMs,
 	random = Math.random,
 	now = Date.now,
+	logger = pino({ level: "silent" }),
 }: AppOptions): Express {
 	const adsByTenant = new Map<string, Map<string, Ad>>();
 	const takeRateLimitToken = createRateLimiter(rateLimitPerSecond, now);
@@ -107,6 +111,8 @@ export function createApp({
 	};
 
 	const app = express();
+	// First, so a request rejected for its API key still gets an access line.
+	app.use(createHttpLogger(logger));
 	app.use(requireApiKey);
 	app.use(express.json());
 
@@ -117,7 +123,14 @@ export function createApp({
 			return;
 		}
 
+		const { tenantId, items } = result.data;
 		const failure = pickFailure();
+		if (failure) {
+			req.log.warn(
+				{ tenantId, items: items.length, outcome: failure },
+				"updates handled",
+			);
+		}
 		if (failure === "error") {
 			res.status(500).json({ error: "Internal error" });
 			return;
@@ -134,6 +147,10 @@ export function createApp({
 			res.status(500).json({ error: "Internal error" });
 			return;
 		}
+		req.log.info(
+			{ tenantId, items: items.length, outcome: "applied", ...outcome },
+			"updates handled",
+		);
 		res.json(outcome);
 	});
 
