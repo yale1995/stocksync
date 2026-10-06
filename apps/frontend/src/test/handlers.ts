@@ -30,3 +30,11 @@ export function emptySyncStatus() {
 		),
 	);
 }
+
+export function emptyProducts() {
+	server.use(
+		http.get("/api/v1/products", () =>
+			HttpResponse.json({ data: [], meta: { page: 1, limit: 20, total: 0 } }),
+		),
+	);
+}

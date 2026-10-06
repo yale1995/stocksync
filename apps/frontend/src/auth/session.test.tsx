@@ -4,7 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { meQuery } from "@/api/auth";
 import { apiFetch } from "@/api/client";
 import { currentUser, unauthorized } from "@/test/fixtures";
-import { emptySyncStatus, signedIn, signedOut } from "@/test/handlers";
+import {
+	emptyProducts,
+	emptySyncStatus,
+	signedIn,
+	signedOut,
+} from "@/test/handlers";
 import { renderApp } from "@/test/render";
 import { server } from "@/test/server";
 
@@ -33,6 +38,7 @@ function requestProducts(app: ReturnType<typeof renderApp>, key: string) {
 }
 
 beforeEach(() => {
+	emptyProducts();
 	emptySyncStatus();
 });
 
