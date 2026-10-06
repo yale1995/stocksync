@@ -3,7 +3,13 @@ import { cleanup } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { server } from "./server";
 
-// jsdom lacks the pointer-capture and scrolling APIs Radix Select calls.
+// jsdom lacks the pointer-capture, scrolling and resize APIs that Radix Select,
+// Popover and cmdk call.
+globalThis.ResizeObserver ??= class {
+	observe() {}
+	unobserve() {}
+	disconnect() {}
+};
 Element.prototype.hasPointerCapture ??= () => false;
 Element.prototype.setPointerCapture ??= () => {};
 Element.prototype.releasePointerCapture ??= () => {};

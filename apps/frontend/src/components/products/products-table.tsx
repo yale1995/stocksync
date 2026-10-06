@@ -2,8 +2,8 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import { CircleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 import type { Page, Product } from "@/api/types";
+import { OutOfStockBadge } from "@/components/out-of-stock-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -111,12 +111,7 @@ function StockCell({ stock }: { stock: number }) {
 	if (stock > 0) return stock;
 	return (
 		<span className="inline-flex items-center gap-2 text-destructive">
-			<Badge
-				variant="outline"
-				className="border-destructive/30 bg-destructive/5 text-destructive"
-			>
-				Out of stock
-			</Badge>
+			<OutOfStockBadge />
 			{stock}
 		</span>
 	);
