@@ -52,7 +52,7 @@ function responseRef(method: string, path: string, status: string): string {
 }
 
 const expectedResponses: [string, string, string[]][] = [
-	["get", "/health", ["200"]],
+	["get", "/health", ["200", "503"]],
 	["post", "/auth/login", ["200", "400", "401"]],
 	["post", "/auth/logout", ["204"]],
 	["get", "/auth/me", ["200", "401"]],
@@ -145,7 +145,8 @@ describe("responses", () => {
 		},
 	);
 
-	it.each(expectedResponses)(
+	// The /health 503 carries the Health shape, not the error envelope.
+	it.each(expectedResponses.filter(([, path]) => path !== "/health"))(
 		"%s %s describes every error with the shared envelope",
 		(method, path, statuses) => {
 			for (const status of statuses.filter((code) => code >= "400")) {
@@ -172,6 +173,7 @@ describe("responses", () => {
 
 	it.each([
 		["get", "/health", "200", "Health"],
+		["get", "/health", "503", "Health"],
 		["post", "/auth/login", "200", "CurrentUser"],
 		["get", "/auth/me", "200", "CurrentUser"],
 		["get", "/products", "200", "ProductList"],

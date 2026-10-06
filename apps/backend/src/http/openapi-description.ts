@@ -66,7 +66,10 @@ ${showSeedUsers ? seedUsersSection() : ""}
 }
 
 export const tagDescriptions = [
-	{ name: "Health", description: "Liveness check." },
+	{
+		name: "Health",
+		description: "Server, database and sync queue health.",
+	},
 	{
 		name: "Auth",
 		description: "Log in and out with the `access_token` cookie.",

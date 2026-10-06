@@ -201,7 +201,10 @@ function apiPaths(showSeedUsers: boolean): ZodOpenApiObject["paths"] {
 			get: {
 				tags: ["Health"],
 				summary: "Health check",
-				responses: { 200: json("The API is up", healthSchema) },
+				responses: {
+					200: json("The API and its database are up", healthSchema),
+					503: json("The database is unreachable", healthSchema),
+				},
 			},
 		},
 		"/auth/login": {

@@ -67,7 +67,7 @@ describe("versioning", () => {
 		const versioned = await request(createApp()).get("/api/v1/health");
 
 		expect(root.status).toBe(200);
-		expect(root.body).toEqual({ status: "ok" });
+		expect(root.body.status).toBe("ok");
 		expect(versioned.status).toBe(404);
 		expect(versioned.body.error.code).toBe("NOT_FOUND");
 	});

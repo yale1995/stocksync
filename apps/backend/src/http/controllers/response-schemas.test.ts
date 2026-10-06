@@ -111,7 +111,34 @@ const cases: [string, z.ZodType, Record<string, unknown>, string[][]][] = [
 		},
 		[[], ["failedEvents", "0"]],
 	],
-	["Health", healthSchema, { status: "ok" }, [[]]],
+	[
+		"Health",
+		healthSchema,
+		{
+			status: "ok",
+			server: {
+				status: "up",
+				version: "0.0.0",
+				nodeVersion: "v22.12.0",
+				environment: "development",
+				provider: "local",
+			},
+			database: {
+				status: "up",
+				version: "18.0",
+				maxConnections: 100,
+				openConnections: 7,
+				latencyMs: 3,
+			},
+			sync: {
+				pending: 12,
+				failed: 2,
+				oldestPendingAt: timestamp,
+				lastSuccessfulSyncAt: timestamp,
+			},
+		},
+		[[], ["server"], ["database"], ["sync"]],
+	],
 ];
 
 function withExtraKey(
