@@ -34,3 +34,7 @@ Thumbs.db
 
 # Turborepo
 .turbo/
+
+# Impeccable local state
+**/.impeccable/questions/
+**/.impeccable/config.local.json
