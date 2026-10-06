@@ -11,17 +11,19 @@
       "text": "When a spec enumerates a set of variants, cover every variant with a table-driven test asserting each listed value",
       "signal": "ac_gap",
       "scope": "http",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "errors"
+        "errors",
+        "api-versioning"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "ERR-02 / M5,M6 (http)"
+        "ERR-02 / M5,M6 (http)",
+        "validation.md G1 / S17 (app.test.ts:43-49, VER-02) (http)"
       ],
       "created": "2026-10-04T02:57:57Z",
-      "last_seen": "2026-10-04T02:57:57Z"
+      "last_seen": "2026-10-05T21:27:51Z"
     },
     {
       "id": "L-002",

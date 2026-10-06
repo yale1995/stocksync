@@ -8,6 +8,12 @@
 
 Corroborated across multiple features. Safe to apply as guidance.
 
+### L-001 - When a spec enumerates a set of variants, cover every variant with a table-driven test asserting each listed value
+- signal: `ac_gap` · recurrence: 2 feature(s) · scope: `http` · harmful: 0
+- features: errors, api-versioning
+- evidence: ERR-02 / M5,M6 (http) (+1 more)
+- last seen: 2026-10-05T21:27:51Z
+
 ### L-006 - Give every database CHECK constraint a raw-insert test asserting its constraint name, not only the ones a prompt lists
 - signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `schema` · harmful: 0
 - features: stock-movements, sales
@@ -29,12 +35,6 @@ Corroborated across multiple features. Safe to apply as guidance.
 ## Candidates (under observation - do NOT load as guidance yet)
 
 Seen once or not yet corroborated. Tracked, not trusted.
-
-### L-001 - When a spec enumerates a set of variants, cover every variant with a table-driven test asserting each listed value
-- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `http` · harmful: 0
-- features: errors
-- evidence: ERR-02 / M5,M6 (http)
-- last seen: 2026-10-04T02:57:57Z
 
 ### L-002 - Assert default values explicitly, not only caller-overridden ones
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `http` · harmful: 0

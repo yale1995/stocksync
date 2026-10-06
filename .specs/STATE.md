@@ -25,7 +25,8 @@
 - AD-021: `GET /sync/status` (`requireAuth`, admin and operator, tenant from the token) returns `{ pending, sent, failed, superseded, lastSuccessfulSyncAt, failedEvents }`: counts per status (0 when absent), `max(sent_at)` or `null`, and the 20 most recent currently `failed` events ordered `updated_at desc, id desc` (feature `sync-status`).
 - AD-022: The OpenAPI 3.1 document is generated with `zod-openapi` from the same Zod schemas the controllers validate with. Response shapes are `z.strictObject` schemas in the `*.validation.ts` files, parsed against real responses in the tests. A route-coverage test compares the mounted `apiRoutes` with the documented operations in both directions (feature `api-docs`).
 - AD-023: The docs are public: `GET /openapi.json` and `GET /docs`, served by Scalar with HTTPie as the default client. The introduction, the seeded users table and the seed login examples appear only when `NODE_ENV !== "production"`. Seeded product ids stay random, so no example references a seeded product (feature `api-docs`).
+- AD-024: Business routes are served only under `/api/v1` (`API_PREFIX` in `http/api-prefix.ts`), mounting the `apiRoutes` table on a `v1` router; unprefixed paths answer 404. `/health`, `/docs` and `/openapi.json` stay at the root. The OpenAPI document declares `servers: [{ url: "/api/v1" }]` with relative paths, and `/health` overrides it with `servers: [{ url: "/" }]`. No aliases for the old paths (feature `api-versioning`).
 
 ## Handoff
 
-Feature `api-docs` verified (PASS, iteration 2) and uncommitted on `feat/api-docs`. Feature `api-versioning` has spec and tasks (Draft); code not started. Next: commit `api-docs`, then implement `api-versioning` (T1, T2), then README and Part C.
+Features `api-docs` (committed) and `api-versioning` (verified PASS, uncommitted on `feat/api-versioning`) are done. Next: commit `api-versioning`, then README and Part C (frontend consumes `/api/v1`).
