@@ -20,9 +20,14 @@ export function listProducts({ search, outOfStock, page }: ProductListParams) {
 	return apiFetch<Page<Product>>(`/products?${params}`);
 }
 
+export function getProduct(id: string) {
+	return apiFetch<Product>(`/products/${id}`);
+}
+
 export const productKeys = {
 	all: ["products"] as const,
 	list: (params: ProductListParams) => ["products", "list", params] as const,
+	detail: (id: string) => ["products", "detail", id] as const,
 };
 
 export function productsQuery(params: ProductListParams) {
@@ -30,5 +35,15 @@ export function productsQuery(params: ProductListParams) {
 		queryKey: productKeys.list(params),
 		queryFn: () => listProducts(params),
 		placeholderData: keepPreviousData,
+	});
+}
+
+// Seeded with the product the caller already has (e.g. a search result), then
+// refreshed from the API; invalidating `productKeys.all` refetches it.
+export function productQuery(id: string, initialData?: Product) {
+	return queryOptions({
+		queryKey: productKeys.detail(id),
+		queryFn: () => getProduct(id),
+		initialData,
 	});
 }

@@ -35,6 +35,9 @@
 
 - AD-031: Product list filters live only in the URL, in TanStack Router's JSON search format (`?search=cam&outOfStock=true&page=2`). A Zod `validateSearch` falls back to defaults for invalid values (and reads a numeric `search` as text), and `stripSearchParams({ page: 1 })` keeps the default page out of links. Any filter change resets `page` to 1. The debounced search input follows the URL except while a keystroke is pending (feature `frontend-products`).
 
+- AD-032: The sale form keeps its lines and Idempotency-Key in one reducer (`use-sale-form.ts`): every change to the lines (pick, quantity, add, remove) generates a new `crypto.randomUUID()` key, a resubmit of unchanged lines reuses it, and a success resets the lines with a new key. A ref (not mutation state) blocks a second submit before React re-renders. A 409 or 404 invalidates `["products"]`, so each line's `GET /products/:id` query shows the current stock (feature `frontend-sales`).
+- AD-033: `ApiError` is registered as TanStack Query's `defaultError`, because every query and mutation goes through `apiFetch` (feature `frontend-sales`).
+
 ## Handoff
 
-Part C: `frontend-setup` and `frontend-auth` are committed (stacked branches). `frontend-products` (3 of 5) is verified PASS and uncommitted on `feat/frontend-products`. Next: commit it after the user's review, then `frontend-sales`. Plan: `docs/prompts/06-frontend.md`.
+Part C: `frontend-setup`, `frontend-auth` and `frontend-products` are committed (stacked branches). `frontend-sales` (4 of 5) is verified PASS and uncommitted on `feat/frontend-sales`. Next: commit it after the user's review, then `frontend-sync` and the Impeccable finish review + `apps/frontend/DESIGN.md`. Plan: `docs/prompts/06-frontend.md`.

@@ -80,3 +80,10 @@ function isApiErrorBody(body: unknown): body is ApiErrorBody {
 		typeof error.message === "string"
 	);
 }
+
+// Every query and mutation goes through apiFetch, which only throws ApiError.
+declare module "@tanstack/react-query" {
+	interface Register {
+		defaultError: ApiError;
+	}
+}
