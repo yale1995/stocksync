@@ -38,3 +38,7 @@ Thumbs.db
 # Impeccable local state
 **/.impeccable/questions/
 **/.impeccable/config.local.json
+**/.impeccable/review/
+
+# TanStack Router plugin cache
+.tanstack/

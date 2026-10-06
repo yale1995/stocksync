@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createMemoryHistory, RouterProvider } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { registerSessionExpiry } from "@/auth/session";
 import { createAppRouter } from "@/router";
 
 export function renderApp(path: string) {
@@ -10,6 +11,7 @@ export function renderApp(path: string) {
 	});
 	const history = createMemoryHistory({ initialEntries: [path] });
 	const router = createAppRouter(queryClient, history);
+	registerSessionExpiry(router, queryClient);
 	const user = userEvent.setup();
 
 	render(

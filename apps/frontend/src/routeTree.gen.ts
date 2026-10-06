@@ -9,27 +9,153 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthIndexRouteImport } from './routes/_auth/index'
+import { Route as AuthProductsRouteImport } from './routes/_auth/products'
+import { Route as AuthSyncRouteImport } from './routes/_auth/sync'
+import { Route as AuthSalesNewRouteImport } from './routes/_auth/sales.new'
 
-export interface FileRoutesByFullPath {}
-export interface FileRoutesByTo {}
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthProductsRoute = AuthProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthSyncRoute = AuthSyncRouteImport.update({
+  id: '/sync',
+  path: '/sync',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthSalesNewRoute = AuthSalesNewRouteImport.update({
+  id: '/sales/new',
+  path: '/sales/new',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof AuthIndexRoute
+  '/login': typeof LoginRoute
+  '/products': typeof AuthProductsRoute
+  '/sync': typeof AuthSyncRoute
+  '/sales/new': typeof AuthSalesNewRoute
+}
+export interface FileRoutesByTo {
+  '/login': typeof LoginRoute
+  '/products': typeof AuthProductsRoute
+  '/sync': typeof AuthSyncRoute
+  '/': typeof AuthIndexRoute
+  '/sales/new': typeof AuthSalesNewRoute
+}
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_auth': typeof AuthRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_auth/products': typeof AuthProductsRoute
+  '/_auth/sync': typeof AuthSyncRoute
+  '/_auth/': typeof AuthIndexRoute
+  '/_auth/sales/new': typeof AuthSalesNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: never
+  fullPaths: '/' | '/login' | '/products' | '/sync' | '/sales/new'
   fileRoutesByTo: FileRoutesByTo
-  to: never
-  id: '__root__'
+  to: '/login' | '/products' | '/sync' | '/' | '/sales/new'
+  id:
+    | '__root__'
+    | '/_auth'
+    | '/login'
+    | '/_auth/products'
+    | '/_auth/sync'
+    | '/_auth/'
+    | '/_auth/sales/new'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {}
+export interface RootRouteChildren {
+  AuthRoute: typeof AuthRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
-const rootRouteChildren: RootRouteChildren = {}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/': {
+      id: '/_auth/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/products': {
+      id: '/_auth/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof AuthProductsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/sync': {
+      id: '/_auth/sync'
+      path: '/sync'
+      fullPath: '/sync'
+      preLoaderRoute: typeof AuthSyncRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/sales/new': {
+      id: '/_auth/sales/new'
+      path: '/sales/new'
+      fullPath: '/sales/new'
+      preLoaderRoute: typeof AuthSalesNewRouteImport
+      parentRoute: typeof AuthRoute
+    }
+  }
+}
+
+interface AuthRouteChildren {
+  AuthProductsRoute: typeof AuthProductsRoute
+  AuthSyncRoute: typeof AuthSyncRoute
+  AuthIndexRoute: typeof AuthIndexRoute
+  AuthSalesNewRoute: typeof AuthSalesNewRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthProductsRoute: AuthProductsRoute,
+  AuthSyncRoute: AuthSyncRoute,
+  AuthIndexRoute: AuthIndexRoute,
+  AuthSalesNewRoute: AuthSalesNewRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  AuthRoute: AuthRouteWithChildren,
+  LoginRoute: LoginRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
