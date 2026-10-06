@@ -1,0 +1,433 @@
+{
+	"schemaVersion": 2,
+	"generatedAt": "2026-10-06T13:47:58+00:00",
+	"title": "Design System: StockSync",
+	"extensions": {
+		"colorMeta": {
+			"background": {
+				"role": "neutral",
+				"displayName": "Canvas",
+				"canonical": "#F8FAFC",
+				"tonalRamp": [
+					"#0F172A",
+					"#1E293B",
+					"#334155",
+					"#475569",
+					"#64748B",
+					"#94A3B8",
+					"#E2E8F0",
+					"#F8FAFC"
+				]
+			},
+			"foreground": {
+				"role": "neutral",
+				"displayName": "Slate Ink",
+				"canonical": "#0F172A",
+				"tonalRamp": [
+					"#0F172A",
+					"#1E293B",
+					"#334155",
+					"#475569",
+					"#64748B",
+					"#94A3B8",
+					"#E2E8F0",
+					"#F8FAFC"
+				]
+			},
+			"card": {
+				"role": "neutral",
+				"displayName": "Surface White",
+				"canonical": "#FFFFFF",
+				"tonalRamp": [
+					"#0F172A",
+					"#1E293B",
+					"#334155",
+					"#475569",
+					"#64748B",
+					"#94A3B8",
+					"#E2E8F0",
+					"#F8FAFC"
+				]
+			},
+			"primary": {
+				"role": "primary",
+				"displayName": "Action Blue",
+				"canonical": "#2563EB",
+				"tonalRamp": [
+					"#1E3A8A",
+					"#1E40AF",
+					"#1D4ED8",
+					"#2563EB",
+					"#3B82F6",
+					"#93C5FD",
+					"#DBEAFE",
+					"#EFF6FF"
+				]
+			},
+			"primary-foreground": {
+				"role": "neutral",
+				"displayName": "On Action",
+				"canonical": "#FFFFFF",
+				"tonalRamp": [
+					"#0F172A",
+					"#1E293B",
+					"#334155",
+					"#475569",
+					"#64748B",
+					"#94A3B8",
+					"#E2E8F0",
+					"#F8FAFC"
+				]
+			},
+			"secondary": {
+				"role": "neutral",
+				"displayName": "Wash",
+				"canonical": "#F1F5F9",
+				"tonalRamp": [
+					"#0F172A",
+					"#1E293B",
+					"#334155",
+					"#475569",
+					"#64748B",
+					"#94A3B8",
+					"#E2E8F0",
+					"#F8FAFC"
+				]
+			},
+			"muted-foreground": {
+				"role": "neutral",
+				"displayName": "Slate Muted",
+				"canonical": "#64748B",
+				"tonalRamp": [
+					"#0F172A",
+					"#1E293B",
+					"#334155",
+					"#475569",
+					"#64748B",
+					"#94A3B8",
+					"#E2E8F0",
+					"#F8FAFC"
+				]
+			},
+			"sidebar-foreground": {
+				"role": "neutral",
+				"displayName": "Slate Mid",
+				"canonical": "#475569",
+				"tonalRamp": [
+					"#0F172A",
+					"#1E293B",
+					"#334155",
+					"#475569",
+					"#64748B",
+					"#94A3B8",
+					"#E2E8F0",
+					"#F8FAFC"
+				]
+			},
+			"border": {
+				"role": "neutral",
+				"displayName": "Hairline",
+				"canonical": "#E2E8F0",
+				"tonalRamp": [
+					"#0F172A",
+					"#1E293B",
+					"#334155",
+					"#475569",
+					"#64748B",
+					"#94A3B8",
+					"#E2E8F0",
+					"#F8FAFC"
+				]
+			},
+			"input": {
+				"role": "neutral",
+				"displayName": "Field Stroke",
+				"canonical": "#94A3B8",
+				"tonalRamp": [
+					"#0F172A",
+					"#1E293B",
+					"#334155",
+					"#475569",
+					"#64748B",
+					"#94A3B8",
+					"#E2E8F0",
+					"#F8FAFC"
+				]
+			},
+			"ring": {
+				"role": "primary",
+				"displayName": "Focus Blue",
+				"canonical": "#2563EB",
+				"tonalRamp": [
+					"#1E3A8A",
+					"#1E40AF",
+					"#1D4ED8",
+					"#2563EB",
+					"#3B82F6",
+					"#93C5FD",
+					"#DBEAFE",
+					"#EFF6FF"
+				]
+			},
+			"destructive": {
+				"role": "secondary",
+				"displayName": "Failure Red",
+				"canonical": "#DC2626",
+				"tonalRamp": [
+					"#7F1D1D",
+					"#991B1B",
+					"#B91C1C",
+					"#DC2626",
+					"#EF4444",
+					"#FCA5A5",
+					"#FEE2E2",
+					"#FEF2F2"
+				]
+			},
+			"destructive-ink": {
+				"role": "secondary",
+				"displayName": "Failure Ink",
+				"canonical": "#B91C1C",
+				"tonalRamp": [
+					"#7F1D1D",
+					"#991B1B",
+					"#B91C1C",
+					"#DC2626",
+					"#EF4444",
+					"#FCA5A5",
+					"#FEE2E2",
+					"#FEF2F2"
+				]
+			},
+			"selection": {
+				"role": "primary",
+				"displayName": "Selection Blue",
+				"canonical": "#DBEAFE",
+				"tonalRamp": [
+					"#1E3A8A",
+					"#1E40AF",
+					"#1D4ED8",
+					"#2563EB",
+					"#3B82F6",
+					"#93C5FD",
+					"#DBEAFE",
+					"#EFF6FF"
+				]
+			}
+		},
+		"typographyMeta": {
+			"headline": {
+				"displayName": "Headline",
+				"purpose": "Page titles in the page header."
+			},
+			"title": {
+				"displayName": "Title",
+				"purpose": "Section headings and card titles; login heading steps up to 20px."
+			},
+			"figure": {
+				"displayName": "Figure",
+				"purpose": "Sale total and sync summary counts, tabular numerals."
+			},
+			"body": {
+				"displayName": "Body",
+				"purpose": "Table cells, descriptions, alerts, navigation."
+			},
+			"label": {
+				"displayName": "Label",
+				"purpose": "Buttons, field labels, product names, alert titles, active nav."
+			},
+			"caption": {
+				"displayName": "Caption",
+				"purpose": "SKU under names, inline line messages, badges, sidebar meta."
+			}
+		},
+		"shadows": [
+			{
+				"name": "rest",
+				"value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+				"purpose": "Data surfaces, outline buttons, inputs, selects."
+			},
+			{
+				"name": "card",
+				"value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+				"purpose": "Login card only."
+			},
+			{
+				"name": "float",
+				"value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+				"purpose": "Popovers, combobox and select menus."
+			},
+			{
+				"name": "focus-ring",
+				"value": "0 0 0 3px rgb(37 99 235 / 0.5)",
+				"purpose": "Focus-visible on buttons, inputs, selects, badges."
+			}
+		],
+		"motion": [
+			{
+				"name": "ease-standard",
+				"value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+				"purpose": "Color, background and ring transitions on controls and rows."
+			},
+			{
+				"name": "popover-enter",
+				"value": "fade-in + zoom-in-95 + 8px slide (tw-animate-css)",
+				"purpose": "Popover and select menus opening; reversed on close."
+			},
+			{
+				"name": "skeleton-pulse",
+				"value": "animate-pulse",
+				"purpose": "Loading placeholders in the table frame."
+			}
+		],
+		"breakpoints": [
+			{
+				"name": "sm",
+				"value": "640px"
+			},
+			{
+				"name": "md",
+				"value": "768px"
+			}
+		]
+	},
+	"components": [
+		{
+			"name": "Primary Button",
+			"kind": "button",
+			"refersTo": "button-primary",
+			"description": "Primary action; the only filled blue element on a screen.",
+			"html": "<button class=\"ds-btn-primary\">Register sale</button>",
+			"css": ".ds-btn-primary { font-family: var(--font-sans, 'Inter Variable', ui-sans-serif, system-ui, sans-serif); display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 24px; border: 1px solid transparent; border-radius: 8px; background: var(--primary, #2563EB); color: var(--primary-foreground, #FFFFFF); font-size: 14px; font-weight: 500; line-height: 20px; cursor: pointer; transition: all 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background: rgb(37 99 235 / 0.9); } .ds-btn-primary:focus-visible { box-shadow: 0 0 0 3px rgb(37 99 235 / 0.5); border-color: var(--ring, #2563EB); outline: none; } .ds-btn-primary:disabled { opacity: 0.5; pointer-events: none; }"
+		},
+		{
+			"name": "Outline Button",
+			"kind": "button",
+			"refersTo": "button-outline",
+			"description": "Secondary actions: Retry, Clear filters, pagination.",
+			"html": "<button class=\"ds-btn-outline\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m15 18-6-6 6-6\"/></svg>Previous</button>",
+			"css": ".ds-btn-outline { font-family: var(--font-sans, 'Inter Variable', ui-sans-serif, system-ui, sans-serif); display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px 0 10px; border: 1px solid var(--border, #E2E8F0); border-radius: 8px; background: var(--card, #FFFFFF); color: var(--foreground, #0F172A); font-size: 14px; font-weight: 500; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); cursor: pointer; transition: all 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-outline:hover { background: var(--secondary, #F1F5F9); } .ds-btn-outline:focus-visible { box-shadow: 0 0 0 3px rgb(37 99 235 / 0.5); border-color: var(--ring, #2563EB); outline: none; }"
+		},
+		{
+			"name": "Ghost Add Button",
+			"kind": "button",
+			"refersTo": "button-ghost",
+			"description": "In-card ghost action; blue text because it is an action.",
+			"html": "<button class=\"ds-btn-ghost\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg>Add product</button>",
+			"css": ".ds-btn-ghost { font-family: var(--font-sans, 'Inter Variable', ui-sans-serif, system-ui, sans-serif); display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--primary, #2563EB); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-ghost:hover { background: var(--secondary, #F1F5F9); } .ds-btn-ghost:focus-visible { box-shadow: 0 0 0 3px rgb(37 99 235 / 0.5); border-color: var(--ring, #2563EB); outline: none; }"
+		},
+		{
+			"name": "Text Input",
+			"kind": "input",
+			"refersTo": "input",
+			"description": "Form field with a darker stroke than the hairline; red ring when invalid.",
+			"html": "<div class=\"ds-field\"><label class=\"ds-label\" for=\"ds-email\">Email</label><input id=\"ds-email\" class=\"ds-input\" type=\"email\" placeholder=\"you@store.com\"><input class=\"ds-input\" aria-invalid=\"true\" value=\"0\"><p class=\"ds-field-error\">Only 1 in stock</p></div>",
+			"css": ".ds-field { font-family: var(--font-sans, 'Inter Variable', ui-sans-serif, system-ui, sans-serif); display: flex; flex-direction: column; gap: 8px; width: 280px; } .ds-label { font-size: 14px; font-weight: 500; color: var(--foreground, #0F172A); } .ds-input { font-family: var(--font-sans, 'Inter Variable', ui-sans-serif, system-ui, sans-serif); height: 36px; padding: 4px 12px; border: 1px solid var(--input, #94A3B8); border-radius: 8px; background: var(--card, #FFFFFF); color: var(--foreground, #0F172A); font-size: 14px; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); transition: color 150ms, box-shadow 150ms; } .ds-input::placeholder { color: var(--muted-foreground, #64748B); } .ds-input:focus-visible { box-shadow: 0 0 0 3px rgb(37 99 235 / 0.5); border-color: var(--ring, #2563EB); outline: none; } .ds-input[aria-invalid=true] { border-color: var(--destructive, #DC2626); box-shadow: 0 0 0 3px rgb(220 38 38 / 0.2); } .ds-field-error { margin: 0; font-size: 12px; color: var(--destructive, #DC2626); }"
+		},
+		{
+			"name": "Sidebar Navigation",
+			"kind": "nav",
+			"refersTo": "nav-item",
+			"description": "White sidebar nav; Wash fill for hover and active.",
+			"html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item\" href=\"#\">Products</a><a class=\"ds-nav-item is-active\" href=\"#\" aria-current=\"page\">New sale</a><a class=\"ds-nav-item\" href=\"#\">Sync status</a></nav>",
+			"css": ".ds-nav { font-family: var(--font-sans, 'Inter Variable', ui-sans-serif, system-ui, sans-serif); display: flex; flex-direction: column; gap: 4px; width: 208px; padding: 16px; background: var(--sidebar, #FFFFFF); border-right: 1px solid var(--sidebar-border, #E2E8F0); } .ds-nav-item { display: block; padding: 8px 12px; border-radius: 8px; font-size: 14px; line-height: 20px; color: var(--sidebar-foreground, #475569); text-decoration: none; transition: color 150ms, background-color 150ms; } .ds-nav-item:hover { background: var(--sidebar-accent, #F1F5F9); color: var(--sidebar-accent-foreground, #0F172A); } .ds-nav-item.is-active { background: var(--sidebar-accent, #F1F5F9); color: var(--sidebar-accent-foreground, #0F172A); font-weight: 500; } .ds-nav-item:focus-visible { outline: 2px solid rgb(37 99 235 / 0.5); outline-offset: 2px; }"
+		},
+		{
+			"name": "Out of Stock Badge",
+			"kind": "chip",
+			"refersTo": "badge-out-of-stock",
+			"description": "Shared worded badge for out-of-stock state; never color alone.",
+			"html": "<span class=\"ds-badge-oos\">Out of stock</span>",
+			"css": ".ds-badge-oos { font-family: var(--font-sans, 'Inter Variable', ui-sans-serif, system-ui, sans-serif); display: inline-flex; align-items: center; padding: 2px 8px; border: 1px solid rgb(220 38 38 / 0.3); border-radius: 9999px; background: rgb(220 38 38 / 0.05); color: var(--destructive-ink, #B91C1C); font-size: 12px; font-weight: 500; line-height: 16px; white-space: nowrap; }"
+		},
+		{
+			"name": "Sale Failure Alert",
+			"kind": "custom",
+			"refersTo": "alert-destructive",
+			"description": "Inline outcome above the form: Failure Ink title, ink body, every short item, nothing changed, recovery.",
+			"html": "<div class=\"ds-alert ds-alert-destructive\" role=\"alert\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\"/><line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\"/></svg><div class=\"ds-alert-title\">Sale not registered</div><div class=\"ds-alert-body\"><p>Insufficient stock for:</p><ul><li>MUG-001 (available: 1, requested: 2)</li></ul><p>Nothing was changed.</p></div></div>",
+			"css": ".ds-alert { font-family: var(--font-sans, 'Inter Variable', ui-sans-serif, system-ui, sans-serif); display: grid; grid-template-columns: 16px 1fr; column-gap: 12px; row-gap: 2px; align-items: start; padding: 12px 16px; border: 1px solid var(--border, #E2E8F0); border-radius: 10px; background: var(--card, #FFFFFF); font-size: 14px; line-height: 20px; color: var(--foreground, #0F172A); max-width: 560px; } .ds-alert > svg { transform: translateY(2px); } .ds-alert-title { grid-column: 2; font-weight: 500; letter-spacing: -0.025em; } .ds-alert-body { grid-column: 2; display: grid; gap: 4px; } .ds-alert-body p { margin: 0; line-height: 1.625; } .ds-alert-body ul { margin: 0; padding-left: 20px; } .ds-alert-destructive { border-color: rgb(220 38 38 / 0.3); background: rgb(220 38 38 / 0.05); color: var(--destructive-ink, #B91C1C); } .ds-alert-destructive > svg { color: var(--destructive, #DC2626); } .ds-alert-destructive .ds-alert-body { color: var(--foreground, #0F172A); }"
+		},
+		{
+			"name": "Data Surface Table",
+			"kind": "card",
+			"refersTo": "data-surface",
+			"description": "Hairline-bordered white table frame with muted headers and tabular right-aligned figures.",
+			"html": "<div class=\"ds-table-frame\"><table class=\"ds-table\"><thead><tr><th>SKU</th><th>Name</th><th class=\"num\">Price</th><th class=\"num\">Stock</th></tr></thead><tbody><tr><td class=\"sku\">MUG-001</td><td class=\"name\">Ceramic mug</td><td class=\"num\">$12.00</td><td class=\"num\">14</td></tr><tr><td class=\"sku\">TEE-002</td><td class=\"name\">Logo tee</td><td class=\"num\">$24.00</td><td class=\"num out\"><span class=\"ds-oos\">Out of stock</span> 0</td></tr></tbody></table></div>",
+			"css": ".ds-table-frame { font-family: var(--font-sans, 'Inter Variable', ui-sans-serif, system-ui, sans-serif); overflow: hidden; width: 560px; border: 1px solid var(--border, #E2E8F0); border-radius: 10px; background: var(--card, #FFFFFF); box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); } .ds-table { width: 100%; border-collapse: collapse; font-size: 14px; color: var(--foreground, #0F172A); } .ds-table th { height: 40px; padding: 0 8px; text-align: left; font-weight: 500; color: var(--muted-foreground, #64748B); border-bottom: 1px solid var(--border, #E2E8F0); } .ds-table td { padding: 8px; border-bottom: 1px solid var(--border, #E2E8F0); white-space: nowrap; } .ds-table tr:last-child td { border-bottom: 0; } .ds-table th:first-child, .ds-table td:first-child { padding-left: 16px; } .ds-table th:last-child, .ds-table td:last-child { padding-right: 16px; } .ds-table tbody tr:hover { background: rgb(241 245 249 / 0.5); } .ds-table .num { text-align: right; font-variant-numeric: tabular-nums; } .ds-table .sku { color: var(--muted-foreground, #64748B); } .ds-table .name { font-weight: 500; } .ds-table .out { color: var(--destructive, #DC2626); } .ds-oos { display: inline-flex; padding: 2px 8px; margin-right: 8px; border: 1px solid rgb(220 38 38 / 0.3); border-radius: 9999px; background: rgb(220 38 38 / 0.05); font-size: 12px; font-weight: 500; }"
+		}
+	],
+	"narrative": {
+		"northStar": "The Shop Counter Ledger",
+		"overview": "StockSync is the category-standard admin, done carefully: the grammar of Linear and the official shadcn/ui examples, with nothing smuggled in. A near-white canvas carries white surfaces outlined by hairlines; slate ink does almost all of the talking. Color is not decoration here. It is a verdict: blue means \"you can act here\", red means \"something failed or is short\", and neither ever appears alone without words.\n\nDensity is desktop-first and tabular: products, sale lines and failed sync updates are tables with right-aligned figures in tabular numerals. The memorable moment is a sale's outcome, so outcomes are stated inline, directly above the form that produced them, and they say exactly what happened, whether anything changed, and what to do next.\n\nThe system is light only. shadcn primitives stay in their native grammar; their `dark:` classes remain in the source but are inert, because the `dark` variant is bound to a `.dark` ancestor class the app never sets and the document declares `color-scheme: light`.",
+		"keyCharacteristics": [
+			"Near-white canvas, white surfaces, hairline borders, slate ink.",
+			"One blue accent for primary actions, links and focus; one red for failures and short stock.",
+			"Inter Variable throughout; tabular figures on numbers only.",
+			"Flat surfaces with a single faint shadow; depth by border and tone.",
+			"Inline, worded outcome alerts; no toasts.",
+			"Tables that reflow into labelled rows below `md` instead of scrolling sideways."
+		],
+		"rules": [
+			{
+				"name": "The Blue Means Act Rule",
+				"body": "Blue appears only where the user can act or where focus is. If an element is not a primary action, a link or a focus indicator, it is not blue.",
+				"section": "colors"
+			},
+			{
+				"name": "The Red Speaks Twice Rule",
+				"body": "Red is never the only signal. Every red figure, ring or tint is paired with text: a badge that says \"Out of stock\", an inline line message, an alert title, the error text of a failed update.",
+				"section": "colors"
+			},
+			{
+				"name": "The Ink-On-Tint Rule",
+				"body": "Red text on a red-tinted background uses Failure Ink, not Failure Red; the explanatory body of a destructive alert is Slate Ink.",
+				"section": "colors"
+			},
+			{
+				"name": "The Light Only Rule",
+				"body": "There is one theme. Do not add dark values or rely on `dark:` variants.",
+				"section": "colors"
+			},
+			{
+				"name": "The Figures Only Rule",
+				"body": "Tabular numerals are applied to numeric cells and numeric containers (stock, quantities, prices, subtotals, totals, counts, dates, pagination), never globally, so SKU hyphens and prose keep normal glyphs.",
+				"section": "typography"
+			},
+			{
+				"name": "The Reflow Not Scroll Rule",
+				"body": "Below `md`, a table that must not scroll sideways (sale lines, failed updates) drops its header row and becomes a stack of grid rows. Every figure that lost its column header gets a Slate Muted label generated with a CSS `::before` (e.g. \"Qty\", \"Unit price\", \"Subtotal\", \"Attempts\") or an inline visually-shown label, so nothing is unnamed and nothing is clipped. The products table keeps the native horizontal-scroll container.",
+				"section": "layout"
+			},
+			{
+				"name": "The Hairline Rule",
+				"body": "A surface is defined by its 1px Hairline border first; shadow is a whisper on top, never the boundary.",
+				"section": "elevation"
+			},
+			{
+				"name": "The Inline Verdict Rule",
+				"body": "Outcome feedback is an inline alert above the form, never a toast. It stays until the next action replaces it.",
+				"section": "components"
+			}
+		],
+		"dos": [
+			"Do reserve Action Blue for primary actions, links and focus rings.",
+			"Do pair every use of Failure Red with words: a badge label, an inline message, an alert title, an error string.",
+			"Do use Failure Ink for red text on the red alert tint, and keep the alert body in Slate Ink.",
+			"Do apply tabular numerals per numeric cell or container, not to the body.",
+			"Do report outcomes in an inline alert directly above the form, stating what happened, whether anything changed, and how to recover.",
+			"Do reflow sale-line and failed-update style tables into labelled grid rows below `md` with CSS `::before` labels.",
+			"Do use the shared Out of stock badge wherever out-of-stock state appears.",
+			"Do keep shadcn primitives in their native grammar: 8px controls, 10px data surfaces, hairline borders, the Rest shadow."
+		],
+		"donts": [
+			"Don't add toasts for sale, login or sync outcomes.",
+			"Don't signal state by color alone.",
+			"Don't use blue for status, decoration, headers or filled surfaces.",
+			"Don't add dark theme values or set the `.dark` class; the system is light only.",
+			"Don't apply `tabular-nums` globally; it changes SKU hyphens.",
+			"Don't let a table whose rows carry inputs or long error text (sale lines, failed updates) scroll sideways on a phone; reflow it.",
+			"Don't add decorative gradients, grey-on-grey cards or heavier shadows to data surfaces."
+		]
+	}
+}
