@@ -32,6 +32,12 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: validation.md R3,R4,R5 (sync.repository.ts:33) (worker) (+1 more)
 - last seen: 2026-10-05T19:12:00Z
 
+### L-027 - When behavior depends on NODE_ENV or another env flag, test the wiring in each environment value through the app, not only the pure function it calls
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `env` · harmful: 0
+- features: api-docs, logging
+- evidence: validation.md D1 (docs.controller.ts:7, DOCS-22) (env) (+3 more)
+- last seen: 2026-10-06T19:17:31Z
+
 ## Candidates (under observation - do NOT load as guidance yet)
 
 Seen once or not yet corroborated. Tracked, not trusted.
@@ -168,12 +174,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md M19,M22 (sync.validation.ts:13,21) (tests)
 - last seen: 2026-10-05T20:23:05Z
 
-### L-027 - When behavior depends on NODE_ENV or another env flag, test the wiring in each environment value through the app, not only the pure function it calls
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `env` · harmful: 0
-- features: api-docs
-- evidence: validation.md D1 (docs.controller.ts:7, DOCS-22) (env)
-- last seen: 2026-10-05T20:35:59Z
-
 ### L-028 - When a regex asserts that a table cell has content, exclude the delimiter so an empty cell fails
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
 - features: api-docs
@@ -203,6 +203,36 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: frontend-health
 - evidence: M13 apps/frontend/src/components/health/health-report.tsx:35 (frontend-tests)
 - last seen: 2026-10-06T17:53:35Z
+
+### L-033 - When a rule has a path-specific override, test the path's failure case too, not only the override's happy case
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `http` · harmful: 0
+- features: logging
+- evidence: M24 apps/backend/src/http/middlewares/http-logger.ts:32 (http)
+- last seen: 2026-10-06T19:12:34Z
+
+### L-034 - Assert default values explicitly, not only caller-overridden ones
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `http` · harmful: 0
+- features: logging
+- evidence: LOG-09 M25 apps/backend/src/infra/env.ts:13 (http)
+- last seen: 2026-10-06T19:12:34Z
+
+### L-035 - Test defense-in-depth settings such as log redaction directly, since an outer layer masks their removal in end-to-end tests
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `logging` · harmful: 0
+- features: logging
+- evidence: M10 apps/backend/src/infra/logger.ts:11 (logging)
+- last seen: 2026-10-06T19:12:34Z
+
+### L-036 - When the same safeguard is configured at two layers, test each layer on its own path, since the other layer masks its removal in end-to-end tests
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `logging` · harmful: 0
+- features: logging
+- evidence: M30 apps/backend/src/infra/logger.ts:15 (logging)
+- last seen: 2026-10-06T19:44:45Z
+
+### L-037 - When a spec lists formatter options such as hidden keys or single-line output, assert them on rendered output, not only the custom format function
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `logging` · harmful: 0
+- features: logging
+- evidence: M39/M40 apps/backend/src/infra/pretty.ts:24-27 (logging)
+- last seen: 2026-10-06T19:44:45Z
 
 ## Quarantined (failed when applied - ignore)
 
