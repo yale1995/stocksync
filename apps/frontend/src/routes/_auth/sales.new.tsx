@@ -100,7 +100,9 @@ function NewSalePage() {
 				title="New sale"
 				description="Add products and quantities. Stock is checked when you submit."
 			/>
-			{mutation.isSuccess && <SaleSummary sale={mutation.data} />}
+			{mutation.isSuccess && (
+				<SaleSummary key={mutation.data.id} sale={mutation.data} />
+			)}
 			{mutation.isError && <SaleFailure error={mutation.error} />}
 			<form noValidate onSubmit={handleSubmit}>
 				<SaleLinesCard lines={views} dispatch={dispatch} />

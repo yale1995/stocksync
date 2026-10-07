@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { formatCents, formatDateTime, formatRelative } from "./format";
+import {
+	formatCents,
+	formatDateTime,
+	formatRelative,
+	formatTime,
+} from "./format";
 
 describe("formatCents", () => {
 	it.each([
@@ -17,6 +22,12 @@ describe("formatDateTime", () => {
 		expect(formatDateTime("2026-10-06T14:05:09.000Z")).toBe(
 			"Oct 6, 2026, 2:05:09 PM",
 		);
+	});
+});
+
+describe("formatTime", () => {
+	it("formats an ISO timestamp as a short time", () => {
+		expect(formatTime("2026-10-06T14:05:09.000Z")).toBe("2:05 PM");
 	});
 });
 

@@ -16,6 +16,12 @@ export function formatDateTime(iso: string) {
 	return dateTime.format(new Date(iso));
 }
 
+const time = new Intl.DateTimeFormat("en-US", { timeStyle: "short" });
+
+export function formatTime(iso: string) {
+	return time.format(new Date(iso));
+}
+
 const relative = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
 const units = [

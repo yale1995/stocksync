@@ -1,8 +1,20 @@
-import { CircleAlert, CircleCheck } from "lucide-react";
+import { Check, ChevronDown, CircleAlert } from "lucide-react";
+import { useId, useState } from "react";
 import type { ApiError } from "@/api/client";
 import type { Sale } from "@/api/types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { formatCents } from "@/lib/format";
+import { Button } from "@/components/ui/button";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableFooter,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
+import { formatCents, formatTime } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 // The API lists every short item in one message:
 // "Insufficient stock for A (available: 1, requested: 2), B (...)".
@@ -57,58 +69,92 @@ export function SaleFailure({ error }: { error: ApiError }) {
 	);
 }
 
+// A status, not an alert: success is announced politely, and the items stay
+// collapsed so the form below is ready for the next sale.
 export function SaleSummary({ sale }: { sale: Sale }) {
+	const [expanded, setExpanded] = useState(false);
+	const itemsId = useId();
+	const count = sale.items.length;
+
 	return (
-		<Alert className="mb-4">
-			<CircleCheck />
-			<AlertTitle>Sale registered</AlertTitle>
-			<AlertDescription className="text-foreground">
-				<table
-					aria-label="Registered items"
-					className="mt-2 w-full max-w-2xl text-sm"
+		<div role="status" className="mb-4 rounded-lg border bg-card shadow-xs">
+			<div className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 pr-2 pl-4">
+				<span className="flex size-5.5 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
+					<Check className="size-3" strokeWidth={3} aria-hidden />
+				</span>
+				<p className="text-sm font-medium">Sale registered</p>
+				<p className="grow text-sm text-muted-foreground">
+					{count === 1 ? "1 item" : `${count} items`} ·{" "}
+					<span className="tabular-nums">{formatCents(sale.totalCents)}</span> ·{" "}
+					<span className="tabular-nums">{formatTime(sale.createdAt)}</span>
+				</p>
+				<Button
+					type="button"
+					variant="ghost"
+					size="sm"
+					aria-expanded={expanded}
+					aria-controls={itemsId}
+					onClick={() => setExpanded((open) => !open)}
 				>
-					<thead className="text-left text-xs text-muted-foreground">
-						<tr>
-							<th className="pr-4 pb-1 font-normal">SKU</th>
-							<th className="pr-4 pb-1 font-normal">Name</th>
-							<th className="pr-4 pb-1 text-right font-normal">Qty</th>
-							<th className="pr-4 pb-1 text-right font-normal">Unit price</th>
-							<th className="pb-1 text-right font-normal">Line total</th>
-						</tr>
-					</thead>
-					<tbody>
+					{expanded ? "Hide items" : "Show items"}
+					<ChevronDown
+						className={cn(
+							"text-muted-foreground transition-transform",
+							expanded && "rotate-180",
+						)}
+					/>
+				</Button>
+			</div>
+			<div id={itemsId} hidden={!expanded} className="border-t">
+				<Table
+					aria-label="Registered items"
+					className="[&_td:first-child]:pl-4 [&_td:last-child]:pr-4 [&_th]:text-muted-foreground [&_th:first-child]:pl-4 [&_th:last-child]:pr-4"
+				>
+					<TableHeader>
+						<TableRow className="hover:bg-transparent">
+							<TableHead>Product</TableHead>
+							<TableHead className="w-28 text-right">Quantity</TableHead>
+							<TableHead className="w-28 text-right">Unit price</TableHead>
+							<TableHead className="w-28 text-right">Subtotal</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
 						{sale.items.map((item) => (
-							<tr key={item.productId}>
-								<td className="pr-4 text-muted-foreground">{item.sku}</td>
-								<td className="pr-4">{item.name}</td>
-								<td className="pr-4 text-right tabular-nums">
+							<TableRow key={item.productId} className="hover:bg-transparent">
+								<TableCell className="whitespace-normal">
+									<span className="block font-medium">{item.name}</span>
+									<span className="block text-xs text-muted-foreground">
+										{item.sku}
+									</span>
+								</TableCell>
+								<TableCell className="text-right tabular-nums">
 									{item.quantity}
-								</td>
-								<td className="pr-4 text-right tabular-nums">
+								</TableCell>
+								<TableCell className="text-right tabular-nums">
 									{formatCents(item.unitPriceCents)}
-								</td>
-								<td className="text-right tabular-nums">
+								</TableCell>
+								<TableCell className="text-right font-medium tabular-nums">
 									{formatCents(item.unitPriceCents * item.quantity)}
-								</td>
-							</tr>
+								</TableCell>
+							</TableRow>
 						))}
-					</tbody>
-					<tfoot>
-						<tr>
-							<th
+					</TableBody>
+					<TableFooter className="bg-transparent">
+						<TableRow className="hover:bg-transparent">
+							<TableHead
 								scope="row"
-								colSpan={4}
-								className="pt-2 text-right font-medium"
+								colSpan={3}
+								className="text-right font-normal"
 							>
 								Total
-							</th>
-							<td className="pt-2 text-right font-semibold tabular-nums">
+							</TableHead>
+							<TableCell className="text-right font-semibold tabular-nums">
 								{formatCents(sale.totalCents)}
-							</td>
-						</tr>
-					</tfoot>
-				</table>
-			</AlertDescription>
-		</Alert>
+							</TableCell>
+						</TableRow>
+					</TableFooter>
+				</Table>
+			</div>
+		</div>
 	);
 }
