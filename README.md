@@ -23,10 +23,7 @@
   <img alt="StockSync products screen" src=".github/images/screenshot.png">
 </div>
 
-StockSync lets each tenant manage a product catalog and register sales without ever overselling. Every stock or price change is pushed asynchronously, in rate-limited batches, to an unreliable advertising service, retried with backoff and never overwritten by an older update.
-
-<!-- TODO: replace # with the video URL -->
-**[Video walkthrough](#)**
+A multi-tenant inventory platform where sales never oversell and every stock or price change is synced to an external advertising service in the background.
 
 ## Contents
 
@@ -242,7 +239,7 @@ Every required item and all four bonus items are implemented.
 
 ## Tech choices
 
-**Backend: Express 5** (instead of NestJS). A small surface with explicit layers (controllers, services, repositories) and no dependency injection framework to learn or explain; Express 5 handles errors thrown by async routes natively. *Trade-off:* the structure is kept by convention, not enforced by the framework.
+**Backend: Express 5** (instead of NestJS). No dependency injection container or decorators: modules import what they use, so the route → service → SQL path stays explicit, and the few dependencies worth swapping (the worker's ads client, clock and random source) are passed as parameters. Express 5 handles errors thrown by async routes natively. *Trade-off:* the layers are kept by convention, not enforced by the framework.
 
 **Frontend: React with Vite, as a single-page app** (instead of Angular). TanStack Query manages server state and the sync status polling, TanStack Router gives typed routes and search params (the product filters live in the URL), and Tailwind with shadcn/ui provides accessible components on top of Radix. *Trade-off:* no server-side rendering, which an internal tool does not need.
 
@@ -273,35 +270,6 @@ flowchart LR
 ```
 
 The API and the worker are separate processes built from the same backend code. They never call each other: the API writes sync events to the outbox, and the worker reads them.
-
-```mermaid
-sequenceDiagram
-  participant C as Client
-  participant API
-  participant DB as PostgreSQL
-  participant W as Sync worker
-  participant Ads as Ads service
-
-  C->>API: POST /sales (Idempotency-Key)
-  API->>DB: BEGIN
-  API->>DB: insert sale (unique tenant + key)
-  API->>DB: lock products FOR UPDATE, ordered by id
-  API->>DB: update stock, insert stock movements
-  API->>DB: insert sync_events (version from a sequence)
-  API->>DB: COMMIT
-  API-->>C: 201 (never waits for the ads service)
-
-  loop every tick
-    W->>W: take a rate-limit token
-    W->>DB: BEGIN, pick the tenant with the oldest due event
-    W->>DB: claim its due events FOR UPDATE SKIP LOCKED
-    W->>W: keep only the newest event per product
-    W->>Ads: POST /updates (one tenant, sorted by version)
-    Ads-->>W: 2xx, 429, error or timeout
-    W->>DB: mark sent and supersede older events, or reschedule with backoff, or mark failed
-    W->>DB: COMMIT
-  end
-```
 
 **Backend layers**
 
@@ -364,31 +332,16 @@ The full decision log, with every decision and the reason behind it, is in [`.sp
 
 ## Known limitations and what I would do with more time
 
-**Security and auth**
-
-- No row-level security: add PostgreSQL RLS as a second layer of tenant isolation.
-- No refresh token and no revocation: short-lived access tokens with rotating refresh tokens, or a denylist.
-- No rate limit on login: limit attempts per IP and per email.
-
 **Sync**
 
 - The rate-limit token bucket lives in the worker's memory, so two workers would together exceed 5 requests per second: move the bucket to PostgreSQL or Redis.
 - The worker holds a transaction open during the call to the ads service: replace it with a lease on `next_attempt_at` to run many workers.
-- `failed` events cannot be requeued: add an endpoint and a button to retry them.
-- A failed batch is retried as a whole: retry per item once the ads service reports per-item errors.
-- No history per attempt: a `sync_batches` table with every request and its outcome.
-- No metrics endpoint: `/health` and the sync status cover the operational questions at this scale. In production I would add Prometheus metrics (request latency histograms per route, sync outcomes by error type and, above all, sync lag, the age of the oldest pending event, with an alert), and later OpenTelemetry traces using the existing request ID.
+- `failed` events are never retried: a scheduled job that requeues them after a cool-down, a few rounds at most, plus an alert so a permanent failure does not stay hidden.
 
-**API and data**
+**Security**
 
-- No `GET /sales` to list or read past sales.
-- The product name is not sent to the ads service; the contract follows the brief (SKU, stock, price).
-- No index for the product listing, and `/health` scans the sync events to count them: both are fine at this scale.
-
-**Frontend**
-
-- Only the four required screens: no product create, edit or delete, stock adjustment or movement history in the UI, although the API supports all of them.
-- Light theme only, and the session ends after one hour with no renewal.
+- No row-level security: add PostgreSQL RLS as a second layer of tenant isolation.
+- No refresh token and no revocation: short-lived access tokens with rotating refresh tokens.
 
 ## AI usage and validation
 
