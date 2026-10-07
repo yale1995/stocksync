@@ -521,9 +521,20 @@ describe("new sale outcomes", () => {
 
 		await registerSale(user);
 
-		const alert = await screen.findByRole("alert");
-		expect(within(alert).getByText("Sale registered")).toBeVisible();
-		const summary = within(alert).getByRole("table", {
+		const status = await screen.findByRole("status");
+		expect(within(status).getByText("Sale registered")).toBeVisible();
+		expect(status).toHaveTextContent("2 items · $164.70 · 12:00 PM");
+		expect(
+			within(status).queryByRole("table", { name: "Registered items" }),
+		).not.toBeInTheDocument();
+		expect(isAbove(status, itemsCard())).toBe(true);
+
+		const toggle = within(status).getByRole("button", { name: "Show items" });
+		expect(toggle).toHaveAttribute("aria-expanded", "false");
+		await user.click(toggle);
+		expect(toggle).toHaveAttribute("aria-expanded", "true");
+		expect(toggle).toHaveAccessibleName("Hide items");
+		const summary = within(status).getByRole("table", {
 			name: "Registered items",
 		});
 		const rows = within(summary)
@@ -534,14 +545,17 @@ describe("new sale outcomes", () => {
 					.map((cell) => cell.textContent),
 			);
 		expect(rows.slice(1, 3)).toEqual([
-			["CAM-P", "Camiseta P", "3", "$49.90", "$149.70"],
-			["CAN-01", "Caneca", "1", "$15.00", "$15.00"],
+			["Camiseta PCAM-P", "3", "$49.90", "$149.70"],
+			["CanecaCAN-01", "1", "$15.00", "$15.00"],
 		]);
 		expect(
 			within(summary).getByRole("rowheader", { name: "Total" }),
 		).toBeVisible();
 		expect(rows.at(-1)).toEqual(["$164.70"]);
-		expect(isAbove(alert, itemsCard())).toBe(true);
+		await user.click(toggle);
+		expect(
+			within(status).queryByRole("table", { name: "Registered items" }),
+		).not.toBeInTheDocument();
 
 		expect(picker(1)).toHaveTextContent("Choose a product");
 		expect(
@@ -698,7 +712,8 @@ describe("new sale outcomes", () => {
 		await registerSale(user);
 
 		expect(await screen.findByText("Sale registered")).toBeVisible();
-		expect(screen.getAllByRole("alert")).toHaveLength(1);
+		expect(screen.getAllByRole("status")).toHaveLength(1);
+		expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 		expect(screen.queryByText("Sale not registered")).not.toBeInTheDocument();
 	});
 });
